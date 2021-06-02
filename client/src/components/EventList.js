@@ -19,7 +19,8 @@ class EventList extends Component {
         console.log('Data has been received!!');
       })
       .catch((err) => {
-        alert('Error retrieving data!!!',err);
+        alert('Error retrieving data!!!');
+        console.log(err);
       });
   }
   displayEvent = (posts) => {
