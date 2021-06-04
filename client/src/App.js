@@ -13,7 +13,7 @@ class App extends React.Component {
     //JSX
     return(
       <div className="app">
-        <WeNav></WeNav>
+        <WeNav/>
         <br/>
         <h1>Welcome to WeWyll</h1>
         <EventList/>

@@ -7,7 +7,6 @@ const Event = require('../models/event');
 
 // Routes
 router.get('/', (req, res) => {
-
     Event.find({  })
         .then((data) => {
             console.log('Data: ', data);
