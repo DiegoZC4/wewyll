@@ -26,6 +26,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Step 3
+// HTTP request logger
+app.use(morgan('tiny'));
+app.use('/api', routes);
 
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static('client/build'));
@@ -33,10 +36,5 @@ if (process.env.NODE_ENV === 'production') {
         res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
       });
 }
-
-
-// HTTP request logger
-app.use(morgan('tiny'));
-app.use('/api', routes);
 
 app.listen(PORT, console.log(`Server is starting at ${PORT}`));
