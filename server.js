@@ -8,33 +8,46 @@ const app = express();
 
 const PORT = process.env.PORT || 5000; // Step 1
 
-const routes = require('./routes/api');
+const event = require('./routes/event');
+const organization = require('./routes/organization');
+const volunteer = require('./routes/volunteer');
+const commonField = require('./routes/commonField');
+
+const doAuth = require('./auth');
 
 // Step 2
-mongoose.connect(process.env.MONGODB_URI || 
-    "mongodb+srv://Shane:TMCP2ujjjzmQ6iof@wewyll.oeoce.mongodb.net/WeWyll?retryWrites=true&w=majority", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-});
+mongoose.connect(process.env.MONGODB_URI ||
+    "mongodb+srv://Shane:TMCP2ujjjzmQ6iof@wewyll.oeoce.mongodb.net/WeWyll?retryWrites=true&w=majority",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
 
 mongoose.connection.on('connected', () => {
-    console.log('Mongoose is connected!!!!');
+  console.log('Mongoose is connected!!!!');
 });
 
 // Data parsing
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: false}));
+
+// authentication
+app.use(doAuth);
 
 // Step 3
 // HTTP request logger
 app.use(morgan('tiny'));
-app.use('/api', routes);
+
+app.use('/event', event);
+app.use('/organization', organization);
+app.use('/volunteer', volunteer);
+app.use('/commonfield', commonField);
 
 if (process.env.NODE_ENV === 'production') {
-    app.use(express.static('client/build'));
-    app.get("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-      });
+  app.use(express.static('client/build'));
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+  });
 }
 
 app.listen(PORT, console.log(`Server is starting at ${PORT}`));
