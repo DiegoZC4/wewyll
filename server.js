@@ -3,6 +3,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 const path = require('path');
+const jwt = require('express-jwt');
+const jwks = require('jwks-rsa');
 
 const app = express();
 
@@ -13,7 +15,6 @@ const organization = require('./routes/organization');
 const volunteer = require('./routes/volunteer');
 const commonField = require('./routes/commonField');
 
-const doAuth = require('./auth');
 
 // Step 2
 mongoose.connect(process.env.MONGODB_URI ||
@@ -32,7 +33,18 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
 // authentication
-app.use(doAuth);
+let jwtCheck = jwt({
+  secret: jwks.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: 'https://wewyll.us.auth0.com/.well-known/jwks.json'
+  }),
+  audience: 'wewyll-api',
+  issuer: 'https://wewyll.us.auth0.com/',
+  algorithms: ['RS256']
+});
+app.use(jwtCheck);
 
 // Step 3
 // HTTP request logger
@@ -50,4 +62,5 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.listen(PORT, console.log(`Server is starting at ${PORT}`));
+console.log(`Server is starting at ${PORT}`)
+app.listen(PORT);
