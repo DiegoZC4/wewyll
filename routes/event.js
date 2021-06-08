@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedVariable
+
 const {v4: uuidv4} = require('uuid');
 
 const express = require('express');
@@ -193,7 +195,7 @@ router.patch('/:eventId', async (req, res) => {
     Object.assign(event, body);
 
     event.save((err, doc) => {
-      if (error) {
+      if (err) {
         // todo better validation
         res.status(500).send("internal server error");
         return;
@@ -238,26 +240,185 @@ router.delete('/:eventId', async (req, res) => {
   }
 });
 
-router.get('/:eventId/signup', (req, res) => {
+// TODO make code less duplicated
+router.get('/:eventId/signup', async (req, res) => {
   let eventId = req.params.eventId;
-  // TODO not implemented
+  let userId = req.user.sub;
+  let userData = await UserData.findById(userId).exec();
+
+  let event = await Event.findById(eventId).exec();
+
+  if (!event) {
+    // it just doesn't exist
+    res.sendStatus(404);
+  } else if (userData.organization !== event.organization && !userData.admin) {
+    if (event.approved) {
+      // we can see the event but not signups
+      res.sendStatus(403);
+    } else {
+      // event exists but we can't see it
+      res.sendStatus(404);
+    }
+  } else {
+    // view signups
+    res.status(200).json(event.signUps.map(s => {
+      s.id = s._id;
+      delete s._id;
+      return s;
+    }));
+  }
 });
 
-router.post('/:eventId/signup', (req, res) => {
+router.post('/:eventId/signup', async (req, res) => {
   let eventId = req.params.eventId;
-  // TODO not implemented
+  let volunteer = req.params.user ?? null;
+  let userId = req.user.sub;
+  let userData = await UserData.findById(userId).exec();
+  let event = await Event.findById(eventId).exec();
+  const body = req.body;
+
+  if (!event || (!event.approved
+      && userData.organization !== event.organization
+      && !userData.admin)) {
+    // doesn't exist, or we can't see it
+    res.sendStatus(404);
+  } else if (volunteer && volunteer !== userData.volunteer
+      && !userData.admin
+      && userData.organization !== event.organization) {
+    // you only get to sign up as someone you aren't if you're an admin
+    // or the controlling organization
+    res.status(403).send('cannot sign up with a different volunteer ID');
+  } else {
+    // process
+
+    // populate necessary fields
+    let fields = await CommonField.find().where('_id').in(
+        event.commonFields).exec();
+
+    fields = fields.map((field) => {
+      field.id = field._id;
+      delete field._id;
+    });
+
+    fields.concat(event.customFields);
+
+    let missingRequired = [];
+    const fieldData = body.fieldData;
+
+    if (fields.filter(field => field.required).length > 0 && !fieldData) {
+      res.status(400).send("missing fieldData in body");
+      return;
+    }
+
+    fields.forEach(field => {
+      if (field.required && !fieldData.some(
+          data => data.field === field.id)) {
+        missingRequired.push(field.id);
+      }
+    });
+
+    if (missingRequired.length > 0) {
+      res.status(400).send("missing required fields: " + missingRequired);
+      return;
+    }
+
+    let signUp = {
+      _id: uuidv4(),
+      timestamp: Date.now(),
+      user: volunteer,
+      fieldData: fieldData,
+    };
+
+    event.signUps.push(signUp);
+
+    event.save((err, doc) => {
+      if (err) {
+        // todo better validation
+        res.sendStatus(500);
+        return;
+      }
+      let newSignUp = doc.signUps.find(s => s._id === signUp._id);
+      newSignUp.id = newSignUp._id;
+      delete newSignUp._id;
+      return res.status(200).json(newSignUp);
+    });
+  }
 });
 
-router.get('/:eventId/signup/:signUpId', (req, res) => {
+router.get('/:eventId/signup/:signUpId', async (req, res) => {
   let eventId = req.params.eventId;
   let signUpId = req.params.signUpId;
-  // TODO not implemented
+  let userId = req.user.sub;
+  let userData = await UserData.findById(userId).exec();
+  let event = await Event.findById(eventId).exec();
+
+  if (!event) {
+    // doesn't exist
+    res.sendStatus(404);
+    return;
+  }
+
+  let hasViewAuth = userData.admin || userData.organization
+      === event.organization;
+
+  if (event.approved || hasViewAuth) {
+    let signUp = event.signUps.find(s => s._id === signUpId);
+
+    if (signUp &&
+        (hasViewAuth ||
+            (signUp.user && signUp.user === userData.volunteer))) {
+      signUp.id = signUp._id;
+      delete signUp._id;
+      res.json(signUp);
+    } else {
+      // doesn't exist, or we don't have view authorization
+      res.sendStatus(404);
+    }
+  } else {
+    // event doesn't exist or we don't have view authorization
+    res.sendStatus(404);
+  }
 });
 
-router.delete('/:eventId/signup/:signUpId', (req, res) => {
+router.delete('/:eventId/signup/:signUpId', async (req, res) => {
   let eventId = req.params.eventId;
   let signUpId = req.params.signUpId;
-  // TODO not implemented
+  let userId = req.user.sub;
+  let userData = await UserData.findById(userId).exec();
+  let event = await Event.findById(eventId).exec();
+
+  if (!event) {
+    // doesn't exist
+    res.sendStatus(404);
+    return;
+  }
+
+  let hasViewAuth = userData.admin || userData.organization
+      === event.organization;
+
+  // if you can view a sign-up, you can delete it
+  if (event.approved || hasViewAuth) {
+    let signUp = event.signUps.find(s => s._id === signUpId);
+
+    if (signUp &&
+        (hasViewAuth ||
+            (signUp.user && signUp.user === userData.volunteer))) {
+      Event.findByIdAndUpdate(eventId, { $pull: {'signUps': { _id: signUpId }}}).exec((err) => {
+        if (err) {
+          // todo better validation
+          res.sendStatus(500);
+        } else {
+          res.sendStatus(200);
+        }
+      })
+    } else {
+      // doesn't exist, or we don't have view authorization
+      res.sendStatus(404);
+    }
+  } else {
+    // event doesn't exist or we don't have view authorization
+    res.sendStatus(404);
+  }
 });
 
 module.exports = router;

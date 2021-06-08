@@ -27,7 +27,7 @@ const eventSchema = new Schema({
   ],
   signUps: [
     {
-      id: String,
+      _id: String,
       timestamp: Date,
       user: String,
       fieldData: [{field: String, response: String}],
