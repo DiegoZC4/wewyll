@@ -8,6 +8,8 @@ const Event = require('../models/event');
 const UserData = require('../models/user');
 const Organization = require('../models/organization');
 
+// TODO logging
+
 // router will be mounted on /event
 router.get('/', async (req, res) => {
   let userId = req.user.sub;
@@ -109,19 +111,130 @@ router.post('/', async (req, res) => {
   });
 });
 
-router.get('/:eventId', (req, res) => {
+router.get('/:eventId', async (req, res) => {
   let eventId = req.params.eventId;
-  // TODO not implemented
+  let userId = req.user.sub;
+  let userData = await UserData.findById(userId).exec();
+
+  let event = await Event.findById(eventId).exec();
+  if (!event || (!event.approved
+      && userData.organization !== event.organization
+      && !userData.admin)) {
+    // if the event does not exist, we return a 404
+    // but we ALSO do a 404 if it's not approved yet and we aren't either
+    // 1) its organization or 2) an admin
+    res.sendStatus(404);
+  } else {
+    event.id = event._id;
+    delete event._id; // conform to api spec
+    delete event.signUps; // these are exposed by the /:eventId/signups/ endpoint
+    res.json(event);
+  }
 });
 
-router.patch('/:eventId', (req, res) => {
+router.patch('/:eventId', async (req, res) => {
   let eventId = req.params.eventId;
-  // TODO not implemented
+  let userId = req.user.sub;
+  let userData = await UserData.findById(userId).exec();
+  const body = req.body;
+
+  let event = await Event.findById(eventId).exec();
+
+  /*
+  the specific interaction of authentication levels with response codes here
+  is a bit weird
+
+  * basically, if the event should NOT be visible to the currently auth'd user,
+    (i.e. GET /:eventId would reply 404), we reply 404 to avoid enumeration
+  * if the event SHOULD be visible to the current user, but they don't have
+    permission to edit it (i.e. a volunteer user attempting to edit an
+    already-approved event) then reply 403 ("you can see but you can't touch")
+  * if the request is borked, reply 400
+  */
+  if (!event) {
+    // it just doesn't exist
+    res.sendStatus(404);
+  } else if (userData.organization !== event.organization && !userData.admin) {
+    if (event.approved) {
+      // we can see the event but can't edit
+      res.sendStatus(403);
+    } else {
+      // event exists but we can't see it
+      res.sendStatus(404);
+    }
+  } else {
+    // we can edit
+
+    if (body.organization) {
+      if (await Organization.findById(body.organization).exec()) {
+        event.organization = body.organization;
+      } else {
+        res.status(400).send("organization does not exist"); // not allowed to edit ID
+        return;
+      }
+    }
+
+    if (body.approved !== event.approved) {
+      if (userData.admin) {
+        // TODO: allow organizations to revoke approval?
+        // TODO: should approval be revoked on any edit?
+        event.approved = body.approved;
+      } else {
+        res.status(403).send("cannot edit approval status");
+      }
+    }
+
+    // TODO better validation for commonfields/customfields
+
+    // no event ID change allowed
+    delete body._id;
+
+    Object.assign(event, body);
+
+    event.save((err, doc) => {
+      if (error) {
+        // todo better validation
+        res.status(500).send("internal server error");
+        return;
+      }
+      // conform to API spec
+      doc.id = doc._id;
+      delete doc._id;
+      delete doc.signUps;
+      return res.status(200).json(doc);
+    });
+  }
 });
 
-router.delete('/:eventId', (req, res) => {
+router.delete('/:eventId', async (req, res) => {
   let eventId = req.params.eventId;
-  // TODO not implemented
+  let userId = req.user.sub;
+  let userData = await UserData.findById(userId).exec();
+
+  let event = await Event.findById(eventId).exec();
+
+  if (!event) {
+    // it just doesn't exist
+    res.sendStatus(404);
+  } else if (userData.organization !== event.organization && !userData.admin) {
+    if (event.approved) {
+      // we can see the event but can't delete
+      res.sendStatus(403);
+    } else {
+      // event exists but we can't see it
+      res.sendStatus(404);
+    }
+  } else {
+    // we can delete
+    Event.deleteOne({_id: eventId}).exec((err => {
+      if (err) {
+        // todo better error
+        res.sendStatus(500);
+      } else {
+        res.sendStatus(200);
+      }
+    }));
+  }
 });
 
 router.get('/:eventId/signup', (req, res) => {
