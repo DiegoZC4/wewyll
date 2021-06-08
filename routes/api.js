@@ -4,6 +4,7 @@ const router = express.Router();
 
 const Event = require('../models/event');
 
+// const Organization = require('../models/organization')
 
 // Routes
 router.get('/', (req, res) => {
