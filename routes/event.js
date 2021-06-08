@@ -7,6 +7,7 @@ const router = express.Router();
 const Event = require('../models/event');
 const UserData = require('../models/user');
 const Organization = require('../models/organization');
+const CommonField = require('../models/commonField');
 
 // TODO logging
 
