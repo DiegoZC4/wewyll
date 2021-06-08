@@ -1,16 +1,15 @@
-const { v4: uuidv4 } = require('uuid');
+const {v4: uuidv4} = require('uuid');
 
 const express = require('express');
 
 const router = express.Router();
-
 
 const Event = require('../models/event');
 const UserData = require('../models/user');
 const Organization = require('../models/organization');
 
 // router will be mounted on /event
-router.get('/', async(req, res) => {
+router.get('/', async (req, res) => {
   let userId = req.user.sub;
   let userData = await UserData.findById(userId).exec();
 
@@ -27,7 +26,14 @@ router.get('/', async(req, res) => {
 
   // TODO pagination
   query.then((data) => {
-    res.json(data);
+    res.json(data.map((event) => {
+      // conform to API spec
+      // TODO: don't barf random garbage out of the database if it's in there
+      event.id = event._id;
+      delete event._id;
+      delete event.signUps;
+      return event;
+    }));
   })
   .catch((error) => {
     console.log('error on GET events: ', error);
@@ -81,18 +87,26 @@ router.post('/', async (req, res) => {
     return;
   }
 
-  // TODO: don't let orgs set approved to true
-
   const newEvent = new Event(req.body);
   newEvent._id = uuidv4();
+
+  if (!userData.admin && newEvent.approved) {
+    res.status(403).send('cannot set approved: true when not an admin');
+    return;
+  }
+
   newEvent.save((error, doc) => {
     if (error) {
       // todo better validation
       res.status(500).send("internal server error");
       return;
     }
-    return res.json(doc);
-  })
+    // conform to API spec
+    doc.id = doc._id;
+    delete doc._id;
+    delete doc.signUps;
+    return res.status(201).json(doc);
+  });
 });
 
 router.get('/:eventId', (req, res) => {
