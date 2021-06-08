@@ -19,6 +19,8 @@ class App extends React.Component {
         <EventList/>
         <br/>
         <EventEditor/>
+        <br/>
+        <br/>
       </div>
     );
   }
