@@ -21,7 +21,8 @@ mongoose.connect(process.env.MONGODB_URI ||
     "mongodb+srv://Shane:TMCP2ujjjzmQ6iof@wewyll.oeoce.mongodb.net/WeWyll?retryWrites=true&w=majority",
     {
       useNewUrlParser: true,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
+      useFindAndModify: false,
     });
 
 mongoose.connection.on('connected', () => {
