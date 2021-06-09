@@ -270,21 +270,14 @@ router.post('/:eventId/signup',
     passport.authenticate(['jwt', 'anon'], {session: false}),
     async (req, res) => {
       let eventId = req.params.eventId;
-      let volunteer = req.params.user ?? null;
       const user = req.user;
-      let event = await Event.findById(eventId).exec();
       const body = req.body;
+      let event = await Event.findById(eventId).exec();
 
       if (!event || (!event.approved && !(user &&
           (user.organization === event.organization || user.admin)))) {
         // doesn't exist, or we can't see it
         res.sendStatus(404);
-      } else if (volunteer && (!user || volunteer !== user.volunteer)
-          && !user.admin
-          && user.organization !== event.organization) {
-        // you only get to sign up as someone you aren't if you're an admin
-        // or the controlling organization
-        res.status(403).send('cannot sign up with a different volunteer ID');
       } else {
         // process
 
@@ -317,7 +310,8 @@ router.post('/:eventId/signup',
         let signUp = {
           _id: uuidv4(),
           timestamp: Date.now(),
-          user: volunteer,
+          // TODO option to allow/disallow anonymous signups?
+          user: user.volunteer,
           fieldData: fieldData,
         };
 

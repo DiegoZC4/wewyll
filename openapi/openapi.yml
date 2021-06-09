@@ -177,16 +177,6 @@ paths:
       tags: [ event ]
       summary: "Create a new sign-up"
       operationId: createSignUp
-      parameters:
-        - name: user
-          description: "The user ID of the user submitting this sign-up"
-          in: query
-          schema:
-            type: string
-            format: uuid
-            nullable: true
-            default: null
-          example: "ad8b1c98-c29d-412f-a0b8-2f05c065458f"
       requestBody:
         required: true
         description: "Sign-up field data"
