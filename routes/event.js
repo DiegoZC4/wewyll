@@ -203,6 +203,12 @@ router.patch('/:eventId', async (req, res) => {
       // conform to API spec
       doc.id = doc._id;
       delete doc._id;
+      doc.customFields = doc.customFields.map(f => {
+        f.id = f._id;
+        delete f._id;
+        return f;
+      })
+
       delete doc.signUps;
       return res.status(200).json(doc);
     });

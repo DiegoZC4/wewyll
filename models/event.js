@@ -18,7 +18,7 @@ const eventSchema = new Schema({
   commonFields: [String],
   customFields: [
     {
-      id: String,
+      _id: String,
       label: String,
       type: String,
       required: Boolean,
