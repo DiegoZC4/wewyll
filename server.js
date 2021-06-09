@@ -5,6 +5,9 @@ const morgan = require('morgan');
 const path = require('path');
 const jwt = require('express-jwt');
 const jwks = require('jwks-rsa');
+const passport = require('passport');
+const passportJwt = require('passport-jwt');
+const AnonymousStrategy = require('passport-anonymous').Strategy;
 
 const app = express();
 
@@ -15,6 +18,7 @@ const organization = require('./routes/organization');
 const volunteer = require('./routes/volunteer');
 const commonField = require('./routes/commonField');
 
+const UserData = require('./models/user');
 
 // Step 2
 mongoose.connect(process.env.MONGODB_URI ||
@@ -33,28 +37,49 @@ mongoose.connection.on('connected', () => {
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
-// authentication
-let jwtCheck = jwt({
-  secret: jwks.expressJwtSecret({
+// Step 3
+// HTTP request logger
+app.use(morgan('tiny'));
+
+const apiRouter = express.Router();
+
+apiRouter.use('/event', event);
+apiRouter.use('/organization', organization);
+apiRouter.use('/volunteer', volunteer);
+apiRouter.use('/commonfield', commonField);
+
+let opts = {
+  secretOrKeyProvider: jwks.passportJwtSecret({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
     jwksUri: 'https://wewyll.us.auth0.com/.well-known/jwks.json'
   }),
-  audience: 'wewyll-api',
+  jwtFromRequest: passportJwt.ExtractJwt.fromAuthHeaderAsBearerToken(),
   issuer: 'https://wewyll.us.auth0.com/',
+  audience: 'wewyll-api',
   algorithms: ['RS256']
-});
-app.use(jwtCheck);
+};
 
-// Step 3
-// HTTP request logger
-app.use(morgan('tiny'));
+passport.use('jwt', new passportJwt.Strategy(opts, (jwtPayload, done) => {
+      UserData.findById(jwtPayload.sub).exec((err, user) => {
+        if (err) {
+          return done(err)
+        }
+        if (user) {
+          return done(null, user);
+        } else {
+          return done(null, false);
+        }
+      })
+    }
+));
+passport.use('anon', new AnonymousStrategy());
 
-app.use('/event', event);
-app.use('/organization', organization);
-app.use('/volunteer', volunteer);
-app.use('/commonfield', commonField);
+app.use(passport.initialize());
+
+app.use('/api', apiRouter);
+
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('client/build'));
