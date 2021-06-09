@@ -20,7 +20,7 @@ tags:
 paths:
   /event:
     get:
-      tags: [event]
+      tags: [ event ]
       summary: "Get a list of events"
       description: |
         Query parameters can be used to narrow down a given search. If no
@@ -51,7 +51,7 @@ paths:
                   $ref: "#/components/schemas/EventResponse"
 
     post:
-      tags: [event]
+      tags: [ event ]
       summary: "Create a new event"
       operationId: createEvent
       requestBody:
@@ -151,7 +151,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/eventId"
     get:
-      tags: [event]
+      tags: [ event ]
       summary: "Get all sign-ups for an event"
       operationId: getSignUps
       responses:
@@ -174,7 +174,7 @@ paths:
             authentication does not have permission to view it, to avoid
             enumeration attacks.*
     post:
-      tags: [event]
+      tags: [ event ]
       summary: "Create a new sign-up"
       operationId: createSignUp
       parameters:
@@ -219,7 +219,7 @@ paths:
       - $ref: "#/components/parameters/eventId"
       - $ref: "#/components/parameters/SignUpId"
     get:
-      tags: [event]
+      tags: [ event ]
       summary: Get a sign-up
       operationId: getSignUp
       responses:
@@ -238,7 +238,7 @@ paths:
             authentication does not have permission to view it, to avoid
             enumeration attacks.*
     delete:
-      tags: [event]
+      tags: [ event ]
       summary: Delete a sign-up
       operationId: deleteSignUp
       responses:
@@ -260,7 +260,7 @@ paths:
             enumeration attacks.*
   /organization:
     get:
-      tags: [organization]
+      tags: [ organization ]
       # todo searching
       summary: "Get all organizations"
       operationId: getOrganizations
@@ -275,7 +275,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/OrganizationResponse"
     post:
-      tags: [organization]
+      tags: [ organization ]
       summary: "Create a new organization"
       operationId: createOrganization
       requestBody:
@@ -303,7 +303,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/OrgId"
     get:
-      tags: [organization]
+      tags: [ organization ]
       summary: "Get organization info"
       operationId: getOrganization
       responses:
@@ -322,7 +322,7 @@ paths:
             authentication does not have permission to view it, to avoid
             enumeration attacks.*
     patch:
-      tags: [organization]
+      tags: [ organization ]
       summary: "Update an organization"
       operationId: editOrganization
       requestBody:
@@ -369,7 +369,7 @@ paths:
             Organization not found, or not visible to the current user.
   /commonfield:
     get:
-      tags: [common-field]
+      tags: [ common-field ]
       summary: "List available common fields"
       operationId: getCommonFields
       responses:
@@ -385,7 +385,7 @@ paths:
   /volunteer:
     get:
       summary: "Get a list of volunteers"
-      tags: [volunteer]
+      tags: [ volunteer ]
       # todo search parameters
       operationId: getVolunteers
       responses:
@@ -403,7 +403,7 @@ paths:
                   $ref: '#/components/schemas/VolunteerResponse'
     post:
       summary: "Create a new volunteer"
-      tags: [volunteer]
+      tags: [ volunteer ]
       operationId: createVolunteer
       requestBody:
         required: true
@@ -438,7 +438,7 @@ paths:
           format: uuid
     get:
       summary: "Get a volunteer"
-      tags: [volunteer]
+      tags: [ volunteer ]
       operationId: getVolunteer
       responses:
         '200':
@@ -457,7 +457,7 @@ paths:
             enumeration attacks.*
     patch:
       summary: "Update a volunteer"
-      tags: [volunteer]
+      tags: [ volunteer ]
       operationId: editVolunteer
       requestBody:
         required: true
@@ -495,7 +495,7 @@ paths:
           description: |
             Volunteer not found, or not visible to the current user.
     delete:
-      tags: [volunteer]
+      tags: [ volunteer ]
       summary: "Delete a volunteer"
       operationId: deleteVolunteer
       responses:
@@ -520,7 +520,7 @@ paths:
         schema:
           type: string
     get:
-      tags: [common-field]
+      tags: [ common-field ]
       summary: "Get info for a specific common field"
       operationId: getCommonField
       responses:
@@ -533,7 +533,7 @@ paths:
         '404':
           description: "Field not found"
     put:
-      tags: [common-field]
+      tags: [ common-field ]
       summary: "Create a new common field or modify an existing field"
       operationId: putCommonField
       requestBody:
@@ -563,7 +563,7 @@ paths:
         '403':
           description: "Provided credential does not have permission to edit common fields"
     delete:
-      tags: [common-field]
+      tags: [ common-field ]
       summary: "Delete a common field"
       operationId: deleteCommonField
       responses:
@@ -585,7 +585,7 @@ components:
               format: uuid
               description: "Unique ID for the organization"
         - $ref: "#/components/schemas/Organization"
-        - required: [id, name]
+        - required: [ id, name ]
     Organization:
       type: object
       properties:
@@ -603,7 +603,7 @@ components:
               format: "uuid"
               description: "Unique ID for the event"
         - $ref: "#/components/schemas/Event"
-        - required: ["id", "name"]
+        - required: [ "id", "name" ]
     Event:
       type: object
       properties:
@@ -644,7 +644,7 @@ components:
           description: "List of common fields for volunteer signup"
           items:
             type: string
-          example: [name, dob, address]
+          example: [ name, dob, address ]
         customFields:
           type: "array"
           description: "List of custom fields for volunteer signup"
@@ -698,7 +698,7 @@ components:
               nullable: true
               format: uuid
               description: "ID of the user that submitted the signup, if available"
-          required: [timestamp, user]
+          required: [ timestamp, user ]
         - $ref: "#/components/schemas/FieldData"
 
     FieldData:
@@ -709,7 +709,7 @@ components:
           description: "A list of responses corresponding to the fields"
           items:
             $ref: "#/components/schemas/FieldEntry"
-      required: [fieldData]
+      required: [ fieldData ]
     FieldEntry:
       type: object
       properties:
@@ -721,7 +721,7 @@ components:
           description: "The matching response data"
           type: string
           example: "John Smith"
-      required: [field, response]
+      required: [ field, response ]
     VolunteerResponse:
       allOf:
         - type: object
@@ -731,7 +731,7 @@ components:
               format: "uuid"
               description: "Unique volunteer ID"
         - $ref: '#/components/schemas/Volunteer'
-        - required: [id, name]
+        - required: [ id, name ]
     Volunteer:
       type: object
       properties:
