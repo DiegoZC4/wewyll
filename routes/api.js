@@ -4,7 +4,7 @@ const router = express.Router();
 
 const Event = require('../models/event');
 
-// const Organization = require('../models/organization')
+const Organization = require('../models/organization')
 
 // Routes
 router.get('/', (req, res) => {
@@ -55,6 +55,48 @@ router.post('/delete',(req, res) => {
 //     res.json(data);
 // });
 
+
+
+// api routes for organization
+router.get('/getOrganization', (req, res) => {
+    Organization.find({  })
+        .then((data) => {
+            console.log('Data: ', data);
+            res.json(data);
+        })
+        .catch((error) => {
+            console.log('error: ', error);
+        });
+});
+
+router.post('/saveOrganization', (req, res) => {
+    const data = req.body;
+
+    const newOrganization = new Organization(data);
+
+    newOrganization.save((error) => {
+        if (error) {
+            res.status(500).json({ msg: 'Sorry, internal server errors' });
+            return;
+        }
+        // Event
+        return res.json({
+            msg: 'Your data has been saved!!!!!!'
+        });
+    });
+});
+
+router.post('/deleteOrganization',(req, res) => {
+    Organization.deleteOne({ _id: req.body.id })
+        .then(() => {
+            return res.json({
+                msg: 'Data Deleted'
+            });
+        })
+        .catch((error) => {
+            console.log('error: ', error);
+        });
+});
 
 
 module.exports = router;

@@ -2,6 +2,8 @@ import React from 'react';
 import WeNav from './components/WeNav';
 import EventEditor from './components/EventEditor';
 import EventList from './components/EventList';
+import OrganizationEditor from './components/OrganizationEditor';
+import OrganizationList from './components/OrganizationList';
 import './App.css';
 
 class App extends React.Component {
@@ -19,8 +21,11 @@ class App extends React.Component {
         <EventList/>
         <br/>
         <EventEditor/>
+        <hr/>
         <br/>
+        <OrganizationList/>
         <br/>
+        <OrganizationEditor/>
       </div>
     );
   }
