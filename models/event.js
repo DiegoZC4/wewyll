@@ -30,7 +30,7 @@ const eventSchema = new Schema({
       _id: String,
       timestamp: Date,
       user: String,
-      fieldData: [{field: String, response: String}],
+      fieldData: [{_id: String, response: String}],
     }
   ],
 });

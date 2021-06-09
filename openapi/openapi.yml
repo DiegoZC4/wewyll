@@ -713,7 +713,7 @@ components:
     FieldEntry:
       type: object
       properties:
-        field:
+        _id:
           type: string
           description: "ID of a custom or common field"
           example: "name"

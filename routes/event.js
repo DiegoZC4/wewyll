@@ -253,7 +253,7 @@ router.get('/:eventId/signup', async (req, res) => {
     }
   } else {
     // view signups
-    res.status(200).json(event.signUps);
+    res.status(200).json(event.signUps.map());
   }
 });
 
@@ -295,8 +295,8 @@ router.post('/:eventId/signup', async (req, res) => {
 
     fields.forEach(field => {
       if (field.required && !fieldData.some(
-          data => data.field === field.id)) {
-        missingRequired.push(field.id);
+          data => data._id === field._id)) {
+        missingRequired.push(field._id);
       }
     });
 
