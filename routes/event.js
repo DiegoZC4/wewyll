@@ -34,8 +34,6 @@ router.get('/', async (req, res) => {
     res.json(data.map((event) => {
       // conform to API spec
       // TODO: don't barf random garbage out of the database if it's in there
-      event.id = event._id;
-      delete event._id;
       delete event.signUps;
       return event;
     }));
@@ -107,8 +105,6 @@ router.post('/', async (req, res) => {
       return;
     }
     // conform to API spec
-    doc.id = doc._id;
-    delete doc._id;
     delete doc.signUps;
     return res.status(201).json(doc);
   });
@@ -128,8 +124,6 @@ router.get('/:eventId', async (req, res) => {
     // 1) its organization or 2) an admin
     res.sendStatus(404);
   } else {
-    event.id = event._id;
-    delete event._id; // conform to api spec
     delete event.signUps; // these are exposed by the /:eventId/signups/ endpoint
     res.json(event);
   }
@@ -200,14 +194,6 @@ router.patch('/:eventId', async (req, res) => {
         res.status(500).send("internal server error");
         return;
       }
-      // conform to API spec
-      doc.id = doc._id;
-      delete doc._id;
-      doc.customFields = doc.customFields.map(f => {
-        f.id = f._id;
-        delete f._id;
-        return f;
-      })
 
       delete doc.signUps;
       return res.status(200).json(doc);
@@ -267,11 +253,7 @@ router.get('/:eventId/signup', async (req, res) => {
     }
   } else {
     // view signups
-    res.status(200).json(event.signUps.map(s => {
-      s.id = s._id;
-      delete s._id;
-      return s;
-    }));
+    res.status(200).json(event.signUps);
   }
 });
 
@@ -300,11 +282,6 @@ router.post('/:eventId/signup', async (req, res) => {
     // populate necessary fields
     let fields = await CommonField.find().where('_id').in(
         event.commonFields).exec();
-
-    fields = fields.map((field) => {
-      field.id = field._id;
-      delete field._id;
-    });
 
     fields.concat(event.customFields);
 
@@ -343,10 +320,7 @@ router.post('/:eventId/signup', async (req, res) => {
         res.sendStatus(500);
         return;
       }
-      let newSignUp = doc.signUps.find(s => s._id === signUp._id);
-      newSignUp.id = newSignUp._id;
-      delete newSignUp._id;
-      return res.status(200).json(newSignUp);
+      return res.status(200).json(doc.signUps.find(s => s._id === signUp._id));
     });
   }
 });
@@ -373,8 +347,6 @@ router.get('/:eventId/signup/:signUpId', async (req, res) => {
     if (signUp &&
         (hasViewAuth ||
             (signUp.user && signUp.user === userData.volunteer))) {
-      signUp.id = signUp._id;
-      delete signUp._id;
       res.json(signUp);
     } else {
       // doesn't exist, or we don't have view authorization
@@ -409,14 +381,15 @@ router.delete('/:eventId/signup/:signUpId', async (req, res) => {
     if (signUp &&
         (hasViewAuth ||
             (signUp.user && signUp.user === userData.volunteer))) {
-      Event.findByIdAndUpdate(eventId, { $pull: {'signUps': { _id: signUpId }}}).exec((err) => {
+      Event.findByIdAndUpdate(eventId,
+          {$pull: {'signUps': {_id: signUpId}}}).exec((err) => {
         if (err) {
           // todo better validation
           res.sendStatus(500);
         } else {
           res.sendStatus(200);
         }
-      })
+      });
     } else {
       // doesn't exist, or we don't have view authorization
       res.sendStatus(404);
