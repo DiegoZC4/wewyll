@@ -5,12 +5,9 @@ const {v4: uuidv4} = require('uuid');
 const express = require('express');
 const passport = require('passport');
 
-const {checkSchema, validationResult} = require('express-validator');
-
 const router = express.Router();
 
 const Event = require('../models/event');
-const UserData = require('../models/user');
 const Organization = require('../models/organization');
 const CommonField = require('../models/commonField');
 
