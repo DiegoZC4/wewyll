@@ -165,13 +165,16 @@ router.patch('/:eventId',
         }
       } else {
         // we can edit
-
         if (body.organization) {
-          if (await Organization.findById(body.organization).exec()) {
-            event.organization = body.organization;
+          if (user.admin) {
+            if (await Organization.findById(body.organization).exec()) {
+              event.organization = body.organization;
+            } else {
+              res.status(400).send("organization does not exist"); // not allowed to edit ID
+              return;
+            }
           } else {
-            res.status(400).send("organization does not exist"); // not allowed to edit ID
-            return;
+            res.status(403).send("cannot change organization ID");
           }
         }
 
