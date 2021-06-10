@@ -1,13 +1,16 @@
 // Import npm packages
 const express = require('express');
 const mongoose = require('mongoose');
-const morgan = require('morgan');
+const winston = require('winston');
+const expressWinston = require('express-winston');
+const logger = require('./logging');
 const path = require('path');
 const jwt = require('express-jwt');
 const jwks = require('jwks-rsa');
 const passport = require('passport');
 const passportJwt = require('passport-jwt');
 const AnonymousStrategy = require('passport-anonymous').Strategy;
+const chalk = require('chalk');
 
 const app = express();
 
@@ -20,6 +23,8 @@ const commonField = require('./routes/commonField');
 
 const UserData = require('./models/user');
 
+logger.info("Initializing WeWyll API Server");
+
 // Step 2
 mongoose.connect(process.env.MONGODB_URI ||
     "mongodb+srv://Shane:TMCP2ujjjzmQ6iof@wewyll.oeoce.mongodb.net/WeWyll?retryWrites=true&w=majority",
@@ -30,7 +35,7 @@ mongoose.connect(process.env.MONGODB_URI ||
     });
 
 mongoose.connection.on('connected', () => {
-  console.log('Mongoose is connected!!!!');
+  logger.info("Mongoose is connected");
 });
 
 // Data parsing
@@ -39,7 +44,17 @@ app.use(express.urlencoded({extended: false}));
 
 // Step 3
 // HTTP request logger
-app.use(morgan('tiny'));
+app.use(expressWinston.logger({
+  winstonInstance: logger,
+  expressFormat: true,
+  colorize: true,
+  statusLevels: true
+}));
+
+app.use((req, res, next) => {
+  logger.info(chalk.gray(`${req.method} ${req.path}`));
+  next();
+})
 
 const apiRouter = express.Router();
 
@@ -88,5 +103,5 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-console.log(`Server is starting at ${PORT}`)
+logger.info(`Server starting at port ${PORT}`);
 app.listen(PORT);

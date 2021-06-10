@@ -7,6 +7,7 @@ const passport = require('passport');
 
 const router = express.Router();
 
+const logger = require('../logging');
 const Event = require('../models/event');
 const Organization = require('../models/organization');
 const CommonField = require('../models/commonField');
@@ -20,19 +21,24 @@ router.get('/',
       // TODO somehow fail harder if provided an invalid JWT (as opposed to no JWT)
       const user = req.user;
 
+      logger.debug(`user: ${user}`);
+
       const query = Event.find();
 
       // TODO more params
       if (req.query.org) {
+        logger.debug(`searching for events with org ${req.query.org}`);
         query.where('organization').equals(req.query.org);
       }
 
       if (!(user && user.admin)) {
+        logger.debug(`user does not have access to unapproved events`);
         query.where('approved').equals(true);
       }
 
       // TODO pagination
       query.then((data) => {
+        logger.debug(`returning ${data.length} matching events`);
         res.json(data.map((event) => {
           // conform to API spec
           // TODO: don't barf random garbage out of the database if it's in there
@@ -41,7 +47,7 @@ router.get('/',
         }));
       })
       .catch((error) => {
-        console.log('error on GET events: ', error);
+        logger.error(`database error on events query: ${error}`);
       });
     });
 
@@ -50,6 +56,8 @@ router.post('/',
     async (req, res) => {
       const user = req.user;
       const body = req.body;
+      logger.debug(`user: ${user}`);
+      logger.debug(`request body: ${body}`);
 
       let org;
       if (body.organization) {
@@ -58,11 +66,16 @@ router.post('/',
 
       let authOk = false;
       if (user.admin) {
+        logger.debug(`user is admin`);
         authOk = true;
       } else if (user.organization) {
         // do you exist
         if (org && body && user.organization === body.organization) {
+          logger.debug(`user organization matches organization in body`);
           authOk = true;
+        } else {
+          logger.debug(
+              `user organization mismatched with body or does not exist`);
         }
       }
 
@@ -72,22 +85,26 @@ router.post('/',
       }
 
       if (!body) {
+        logger.warn(`request body does not exist`);
         res.status(400).send('Missing request body');
         return;
       }
 
       // validate
       if (!body.title) {
+        logger.warn(`request body missing parameter: title`);
         res.status(400).send('Missing parameter: title');
         return;
       }
 
       if (!body.organization) {
+        logger.warn(`request body missing parameter: organization`);
         res.status(400).send('Missing parameter: organization');
         return;
       }
 
       if (!org) {
+        logger.warn(`organization ${body.organization} does not exist`);
         res.status(400).send("organization does not exist");
         return;
       }
@@ -96,6 +113,8 @@ router.post('/',
       newEvent._id = uuidv4();
 
       if (!user.admin && newEvent.approved) {
+        logger.warn(
+            `trying to submit approved event without admin permissions`);
         res.status(403).send('cannot set approved: true when not an admin');
         return;
       }
@@ -103,9 +122,12 @@ router.post('/',
       newEvent.save((error, doc) => {
         if (error) {
           // todo better validation
+          logger.error(`database error on saving new event: ${error}`);
           res.status(500).send("internal server error");
           return;
         }
+
+        logger.info(`created new event ${doc._id}`);
         // conform to API spec
         delete doc.signUps;
         return res.status(201).json(doc);
@@ -117,14 +139,18 @@ router.get('/:eventId',
     async (req, res) => {
       let eventId = req.params.eventId;
       const user = req.user;
+      logger.debug(`user: ${user}`);
 
       let event = await Event.findById(eventId).exec();
-      if (!event ||
-          (!event.approved && !(user &&
-              (user.organization === event.organization || user.admin)))) {
-        // if the event does not exist, we return a 404
-        // but we ALSO do a 404 if it's not approved yet and we aren't either
-        // 1) its organization or 2) an admin
+      // if the event does not exist, we return a 404
+      // but we ALSO do a 404 if it's not approved yet and we aren't either
+      // 1) its organization or 2) an admin
+      if (!event) {
+        logger.warn(`event ${eventId} does not exist`);
+        res.sendStatus(404);
+      } else if (!event.approved && !(user &&
+          (user.organization === event.organization || user.admin))) {
+        logger.warn(`event ${eventId} exists but has not been approved yet`);
         res.sendStatus(404);
       } else {
         delete event.signUps; // these are exposed by the /:eventId/signups/ endpoint
@@ -138,6 +164,8 @@ router.patch('/:eventId',
       let eventId = req.params.eventId;
       const user = req.user;
       const body = req.body;
+      logger.debug(`user: ${user}`);
+      logger.debug(`request body: ${body}`);
 
       let event = await Event.findById(eventId).exec();
 
@@ -153,9 +181,11 @@ router.patch('/:eventId',
       * if the request is borked, reply 400
       */
       if (!event) {
+        logger.warn(`event ${eventId} does not exist`);
         // it just doesn't exist
         res.sendStatus(404);
       } else if (user.organization !== event.organization && !user.admin) {
+        logger.warn(`user does not have edit permissions for this event`);
         if (event.approved) {
           // we can see the event but can't edit
           res.sendStatus(403);
@@ -170,10 +200,12 @@ router.patch('/:eventId',
             if (await Organization.findById(body.organization).exec()) {
               event.organization = body.organization;
             } else {
+              logger.warn(`new organization ${body.organization} not found`);
               res.status(400).send("organization does not exist"); // not allowed to edit ID
               return;
             }
           } else {
+            logger.warn(`user is not an admin but is trying to change org ID`);
             res.status(403).send("cannot change organization ID");
           }
         }
@@ -184,12 +216,17 @@ router.patch('/:eventId',
             // TODO: should approval be revoked on any edit?
             event.approved = body.approved;
           } else {
+            logger.warn(
+                `user is not an admin but is trying to change approval status`);
             res.status(403).send("cannot edit approval status");
           }
         }
 
         // TODO better validation for commonfields/customfields
 
+        if (body._id && body._id !== event._id) {
+          logger.warn(`user is trying to change event ID`);
+        }
         // no event ID change allowed
         delete body._id;
 
@@ -198,10 +235,12 @@ router.patch('/:eventId',
         event.save((err, doc) => {
           if (err) {
             // todo better validation
+            logger.error(`database error on saving edited event: ${error}`);
             res.status(500).send("internal server error");
             return;
           }
 
+          logger.debug(`successfully edited event ${doc._id}`);
           delete doc.signUps;
           return res.status(200).json(doc);
         });
@@ -213,13 +252,16 @@ router.delete('/:eventId',
     async (req, res) => {
       let eventId = req.params.eventId;
       const user = req.user;
+      logger.debug(`user: ${user}`);
 
       let event = await Event.findById(eventId).exec();
 
       if (!event) {
+        logger.warn(`event ${eventId} does not exist`);
         // it just doesn't exist
         res.sendStatus(404);
       } else if (user.organization !== event.organization && !user.admin) {
+        logger.warn(`user does not have delete permissions for this event`);
         if (event.approved) {
           // we can see the event but can't delete
           res.sendStatus(403);
@@ -231,9 +273,11 @@ router.delete('/:eventId',
         // we can delete
         Event.deleteOne({_id: eventId}).exec((err => {
           if (err) {
+            logger.error(`database error on deleting event: ${error}`);
             // todo better error
             res.sendStatus(500);
           } else {
+            logger.info(`deleted event ${eventId}`);
             res.sendStatus(200);
           }
         }));
@@ -246,13 +290,16 @@ router.get('/:eventId/signup',
     async (req, res) => {
       let eventId = req.params.eventId;
       const user = req.user;
+      logger.debug(`user: ${user}`);
 
       let event = await Event.findById(eventId).exec();
 
       if (!event) {
         // it just doesn't exist
+        logger.warn(`event ${eventId} does not exist`);
         res.sendStatus(404);
       } else if (user.organization !== event.organization && !user.admin) {
+        logger.warn(`user is not authorized to view signups for this event`);
         if (event.approved) {
           // we can see the event but not signups
           res.sendStatus(403);
@@ -262,6 +309,7 @@ router.get('/:eventId/signup',
         }
       } else {
         // view signups
+        logger.debug(`returning ${event.signUps.length} signups`);
         res.status(200).json(event.signUps);
       }
     });
@@ -272,10 +320,19 @@ router.post('/:eventId/signup',
       let eventId = req.params.eventId;
       const user = req.user;
       const body = req.body;
+
+      logger.debug(`user: ${user}`);
+      logger.debug(`request body: ${body}`);
+
       let event = await Event.findById(eventId).exec();
 
-      if (!event || (!event.approved && !(user &&
-          (user.organization === event.organization || user.admin)))) {
+      if (!event) {
+        // doesn't exist
+        logger.warn(`event ${eventId} does not exist`);
+        res.sendStatus(404);
+      } else if (!event.approved && !(user &&
+          (user.organization === event.organization || user.admin))) {
+        logger.warn(`event ${eventId} exists but has not been approved yet`);
         // doesn't exist, or we can't see it
         res.sendStatus(404);
       } else {
@@ -291,10 +348,15 @@ router.post('/:eventId/signup',
         const fieldData = body.fieldData;
 
         if (fields.filter(field => field.required).length > 0 && !fieldData) {
+          logger.warn(
+              `a nonzero number of fields are required but no field data was provided`);
           res.status(400).send("missing fieldData in body");
           return;
         }
 
+
+        // FIXME signups can be added that don't have _id parameters in their
+        //  field data
         fields.forEach(field => {
           if (field.required && !fieldData.some(
               data => data._id === field._id)) {
@@ -303,6 +365,7 @@ router.post('/:eventId/signup',
         });
 
         if (missingRequired.length > 0) {
+          logger.warn(`required fields are missing: ${missingRequired}`);
           res.status(400).send("missing required fields: " + missingRequired);
           return;
         }
@@ -315,14 +378,16 @@ router.post('/:eventId/signup',
           fieldData: fieldData,
         };
 
+        // TODO: make operation atomic?
         event.signUps.push(signUp);
 
         event.save((err, doc) => {
           if (err) {
-            // todo better validation
+            logger.error(`database error on saving new sign-up: ${error}`);
             res.sendStatus(500);
             return;
           }
+          logger.info(`saved new sign-up: ${signUp._id}`);
           return res.status(200).json(
               doc.signUps.find(s => s._id === signUp._id));
         });
@@ -335,9 +400,13 @@ router.get('/:eventId/signup/:signUpId',
       let eventId = req.params.eventId;
       let signUpId = req.params.signUpId;
       const user = req.user;
+
+      logger.debug(`user: ${user}`);
+
       let event = await Event.findById(eventId).exec();
 
       if (!event) {
+        logger.warn(`event ${eventId} does not exist`);
         // doesn't exist
         res.sendStatus(404);
         return;
@@ -349,16 +418,28 @@ router.get('/:eventId/signup/:signUpId',
       if (event.approved || hasViewAuth) {
         let signUp = event.signUps.find(s => s._id === signUpId);
 
-        if (signUp &&
-            (hasViewAuth ||
-                (signUp.user && signUp.user === user.volunteer))) {
-          res.json(signUp);
+        if (signUp) {
+          if (hasViewAuth || (signUp.user && signUp.user === user.volunteer)) {
+            res.json(signUp);
+          } else {
+            // we don't have view authorization
+            if (signUp.user) {
+              logger.warn(
+                  `user with volunteer id ${user.volunteer} does not have authorization to view this sign-up (volunteer ${signUp.user})`);
+            } else {
+              logger.warn(
+                  `user does not have authorization to view anonymous sign-ups`);
+            }
+            res.sendStatus(404);
+          }
         } else {
-          // doesn't exist, or we don't have view authorization
+          // doesn't exist
+          logger.warn(`sign-up ${signUpId} does not exist in event ${eventId}`);
           res.sendStatus(404);
         }
       } else {
         // event doesn't exist or we don't have view authorization
+        logger.warn(`event ${eventId} exists but has not been approved yet`);
         res.sendStatus(404);
       }
     });
@@ -369,10 +450,13 @@ router.delete('/:eventId/signup/:signUpId',
       let eventId = req.params.eventId;
       let signUpId = req.params.signUpId;
       let user = req.user;
+      logger.debug(`user: ${user}`);
+
       let event = await Event.findById(eventId).exec();
 
       if (!event) {
         // doesn't exist
+        logger.warn(`event ${eventId} does not exist`);
         res.sendStatus(404);
         return;
       }
@@ -383,23 +467,38 @@ router.delete('/:eventId/signup/:signUpId',
       if (event.approved || hasViewAuth) {
         let signUp = event.signUps.find(s => s._id === signUpId);
 
-        if (signUp &&
-            (hasViewAuth || (signUp.user && signUp.user === user.volunteer))) {
-          Event.findByIdAndUpdate(eventId,
-              {$pull: {'signUps': {_id: signUpId}}}).exec((err) => {
-            if (err) {
-              // todo better validation
-              res.sendStatus(500);
+        if (signUp) {
+          if (hasViewAuth || (signUp.user && signUp.user === user.volunteer)) {
+            Event.findByIdAndUpdate(eventId,
+                {$pull: {'signUps': {_id: signUpId}}}).exec((err) => {
+              if (err) {
+                // todo better validation
+                logger.error(`database error on deleting sign-up: ${error}`);
+                res.sendStatus(500);
+              } else {
+                logger.info(`deleted sign-up ${signUpId}`);
+                res.sendStatus(200);
+              }
+            });
+          } else {
+            // we don't have view authorization
+            if (signUp.user) {
+              logger.warn(
+                  `user with volunteer id ${user.volunteer} does not have authorization to delete this sign-up (volunteer ${signUp.user})`);
             } else {
-              res.sendStatus(200);
+              logger.warn(
+                  `user does not have authorization to delete anonymous sign-ups`);
             }
-          });
+            res.sendStatus(404);
+          }
         } else {
-          // doesn't exist, or we don't have view authorization
+          // doesn't exist
+          logger.warn(`sign-up ${signUpId} does not exist in event ${eventId}`);
           res.sendStatus(404);
         }
       } else {
         // event doesn't exist or we don't have view authorization
+        logger.warn(`event ${eventId} exists but has not been approved yet`);
         res.sendStatus(404);
       }
     });
