@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const volunteerSchema = new Schema({
   id: String,
   name: String,
-  commonFieldPrefill: [{field: String, response: String}],
+  commonFieldPrefill: [{_id: String, response: String}],
 })
 
 // Model
