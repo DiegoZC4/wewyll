@@ -6,6 +6,8 @@ class OrganizationEditor extends React.Component {
   state = {
     title: '',
     body: '',
+    info: '',
+    // image: '',
     posts: []
   };
 
@@ -20,7 +22,9 @@ class OrganizationEditor extends React.Component {
 
     const payload = {
       title: this.state.title,
-      body: this.state.body
+      body: this.state.body,
+      info: this.state.info
+      // image: this.state.image
     };
 
     axios({
@@ -31,7 +35,6 @@ class OrganizationEditor extends React.Component {
       .then(() => {
         console.log('Data has been sent to the server');
         this.resetUserInputs();
-        //this.getEvent();
       })
       .catch((err) => {
         console.log(err);
@@ -41,7 +44,9 @@ class OrganizationEditor extends React.Component {
   resetUserInputs = () => {
     this.setState({
       title: '',
-      body: ''
+      body: '',
+      info: ''
+      // image: ''
     });
   };
 
@@ -63,13 +68,25 @@ class OrganizationEditor extends React.Component {
               placeholder="Description"
               name="body"
               cols="30"
-              rows="10"
+              rows="3"
               value={this.state.body}
               onChange={this.handleChange}
             >
-              
             </textarea>
           </div>
+          <div className="form-input">
+            <textarea
+              placeholder="Information"
+              name="info"
+              cols="30"
+              rows="10"
+              value={this.state.info}
+              onChange={this.handleChange}
+            >
+            </textarea>
+          </div>
+
+          
           <Button variant='primary' type='submit'>Submit</Button>
         </form>
     )

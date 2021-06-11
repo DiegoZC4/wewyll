@@ -4,6 +4,7 @@ import EventEditor from './components/EventEditor';
 import EventList from './components/EventList';
 import OrganizationEditor from './components/OrganizationEditor';
 import OrganizationList from './components/OrganizationList';
+import Upload from './components/Upload';
 import './App.css';
 
 class App extends React.Component {
@@ -17,6 +18,9 @@ class App extends React.Component {
       <div className="app">
         <WeNav/>
         <br/>
+        <Upload/>
+        <br/>
+        <hr/>
         <h1>Welcome to WeWyll</h1>
         <EventList/>
         <br/>

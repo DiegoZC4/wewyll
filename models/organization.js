@@ -6,6 +6,11 @@ const Schema = mongoose.Schema;
 const OrganizationSchema = new Schema({
     title: String,
     body: String,
+    info: String,
+    // img: {
+    //     data: Buffer,
+    //     contentType: String
+    // }
     date: {
         type: String,
         default: Date.now()
