@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 // Schema
 const Schema = mongoose.Schema;
 const volunteerSchema = new Schema({
-  id: String,
+  _id: String,
   name: String,
   commonFieldPrefill: [{_id: String, response: String}],
 })
