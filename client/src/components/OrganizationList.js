@@ -33,6 +33,7 @@ class OrganizationList extends Component {
         <div className="blog-post__display">
           <h3>{post.title}</h3>
           <p>{post.body}</p>
+          <p>{post.info}</p>
           <Button type='submit' variant='danger'>Delete</Button>
         </div>
       </form>

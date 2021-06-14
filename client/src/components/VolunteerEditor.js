@@ -1,0 +1,244 @@
+import React from 'react'
+import axios from 'axios';
+import {Button} from 'react-bootstrap';
+
+class VolunteerEditor extends React.Component {
+  state = {
+    title: '',
+    body: '',
+    name: '',
+    email: '',
+    age: '',
+    volunteertype: '',
+    interests: '',
+    zipcode: '',
+    transportation: '',
+    gender: '',
+    languages: '',
+    previousExperience: '',
+    resume: '',
+    posts: []
+  };
+
+  handleChange = ({ target }) => {
+    const { name, value } = target;
+    this.setState({ [name]: value });
+  };
+
+
+  submit = (volunteer) => {
+    volunteer.preventDefault();
+
+    const payload = {
+      title: this.state.title,
+      body: this.state.body,
+      name: this.state.name,
+      email: this.state.email,
+      age: this.state.age,
+      volunteertype: this.state.volunteertype,
+      interests: this.state.interests,
+      zipcode: this.state.zipcode,
+      transportation: this.state.transportation,
+      gender: this.state.gender,
+      languages: this.state.languages,
+      previousExperience: this.state.previousExperience,
+      resume: this.state.resume
+
+    };
+
+    axios({
+      url: '/api/saveVolunteer',
+      method: 'POST',
+      data: payload
+    })
+      .then(() => {
+        console.log('Data has been sent to the server');
+        this.resetUserInputs();
+      })
+      .catch((err) => {
+        console.log(err);
+      });;
+  };
+
+  resetUserInputs = () => {
+    this.setState({
+      title: '',
+      body: '',
+      name: '',
+      email: '',
+      age: '',
+      volunteertype: '',
+      interests: '',
+      zipcode: '',
+      transportation: '',
+      gender: '',
+      languages: '',
+      previousExperience: '',
+      resume: ''
+    });
+  };
+
+  render(){
+    return (
+        <form onSubmit={this.submit}>
+          <h2>Add Volunteer</h2>
+          <div className="form-input">
+            <input 
+              type="text"
+              name="title"
+              placeholder="Title"
+              value={this.state.title}
+              onChange={this.handleChange}
+            />
+          </div>
+          <div className="form-input">
+            <textarea
+              placeholder="body"
+              name="body"
+              cols="30"
+              rows="10"
+              value={this.state.body}
+              onChange={this.handleChange}
+            >
+            </textarea>
+          </div>
+
+          <div className="form-input">
+            <textarea
+              placeholder="First and last name"
+              name="name"
+              cols="30"
+              rows="1"
+              value={this.state.name}
+              onChange={this.handleChange}
+            >
+            </textarea>
+          </div>
+
+          <div className="form-input">
+            <textarea
+              placeholder="Email"
+              name="email"
+              cols="30"
+              rows="1"
+              value={this.state.email}
+              onChange={this.handleChange}
+            >
+            </textarea>
+          </div>
+
+          <div className="form-input">
+            <textarea
+              placeholder="Age"
+              name="age"
+              cols="30"
+              rows="1"
+              value={this.state.age}
+              onChange={this.handleChange}
+            >
+            </textarea>
+          </div>
+
+          <div className="form-input">
+            <textarea
+              placeholder="Volunteer Type"
+              name="volunteertype"
+              cols="30"
+              rows="1"
+              value={this.state.volunteertype}
+              onChange={this.handleChange}
+            >
+            </textarea>
+          </div>
+
+          <div className="form-input">
+            <textarea
+              placeholder="Interests"
+              name="interests"
+              cols="30"
+              rows="3"
+              value={this.state.interests}
+              onChange={this.handleChange}
+            >
+            </textarea>
+          </div>
+
+          <div className="form-input">
+            <textarea
+              placeholder="Zip code"
+              name="zipcode"
+              cols="30"
+              rows="1"
+              value={this.state.zipcode}
+              onChange={this.handleChange}
+            >
+            </textarea>
+          </div>
+
+          <div className="form-input">
+            <textarea
+              placeholder="Method(s) of transportation"
+              name="transportation"
+              cols="30"
+              rows="1"
+              value={this.state.transportation}
+              onChange={this.handleChange}
+            >
+            </textarea>
+          </div>
+
+          <div className="form-input">
+            <textarea
+              placeholder="Gender"
+              name="gender"
+              cols="30"
+              rows="1"
+              value={this.state.gender}
+              onChange={this.handleChange}
+            >
+            </textarea>
+          </div>
+
+          <div className="form-input">
+            <textarea
+              placeholder="Languages"
+              name="languages"
+              cols="30"
+              rows="1"
+              value={this.state.languages}
+              onChange={this.handleChange}
+            >
+            </textarea>
+          </div>
+
+          <div className="form-input">
+            <textarea
+              placeholder="Previous experience"
+              name="previousExperience"
+              cols="30"
+              rows="3"
+              value={this.state.previousExperience}
+              onChange={this.handleChange}
+            >
+            </textarea>
+          </div>
+
+          <div className="form-input">
+            <textarea
+              placeholder="Resume"
+              name="resume"
+              cols="30"
+              rows="5"
+              value={this.state.resume}
+              onChange={this.handleChange}
+            >
+            </textarea>
+          </div>
+          
+          <Button variant='primary' type='submit'>Submit</Button>
+        </form>
+    )
+  }
+}
+
+export default VolunteerEditor

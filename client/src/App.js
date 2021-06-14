@@ -4,6 +4,8 @@ import EventEditor from './components/EventEditor';
 import EventList from './components/EventList';
 import OrganizationEditor from './components/OrganizationEditor';
 import OrganizationList from './components/OrganizationList';
+import VolunteerEditor from './components/VolunteerEditor';
+import VolunteerList from './components/VolunteerList';
 import Upload from './components/Upload';
 import './App.css';
 
@@ -30,6 +32,11 @@ class App extends React.Component {
         <OrganizationList/>
         <br/>
         <OrganizationEditor/>
+        <hr/>
+        <br />
+        <VolunteerList/>
+        <br/>
+        <VolunteerEditor/>
       </div>
     );
   }

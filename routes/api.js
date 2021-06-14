@@ -6,6 +6,8 @@ const Event = require('../models/event');
 
 const Organization = require('../models/organization');
 
+const Volunteer = require('../models/volunteer');
+
 // const multer = require('multer')
 
 // //img storage
@@ -118,6 +120,48 @@ router.post('/deleteOrganization',(req, res) => {
             console.log('error: ', error);
         });
 });
+
+
+// api routes for volunteers
+router.get('/getVolunteer', (req, res) => {
+    Volunteer.find({  })
+        .then((data) => {
+            console.log('Data: ', data);
+            res.json(data);
+        })
+        .catch((error) => {
+            console.log('error: ', error);
+        });
+});
+
+router.post('/saveVolunteer', (req, res) => {
+    const data = req.body;
+
+    const newVolunteer = new Volunteer(data);
+
+    newVolunteer.save((error) => {
+        if (error) {
+            res.status(500).json({ msg: 'Sorry, internal server errors' });
+            return;
+        }
+        return res.json({
+            msg: 'Your data has been saved!!!!!!'
+        });
+    });
+});
+
+router.post('/deleteVolunteer',(req, res) => {
+    Volunteer.deleteOne({ _id: req.body.id })
+        .then(() => {
+            return res.json({
+                msg: 'Data Deleted'
+            });
+        })
+        .catch((error) => {
+            console.log('error: ', error);
+        });
+});
+
 
 
 module.exports = router;
