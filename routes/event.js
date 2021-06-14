@@ -12,8 +12,6 @@ const Event = require('../models/event');
 const Organization = require('../models/organization');
 const CommonField = require('../models/commonfield');
 
-// TODO logging
-
 // router will be mounted on /event
 router.get('/',
     passport.authenticate(['jwt', 'anon'], {session: false}),
