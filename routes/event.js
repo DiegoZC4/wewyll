@@ -10,7 +10,7 @@ const router = express.Router();
 const logger = require('../logging');
 const Event = require('../models/event');
 const Organization = require('../models/organization');
-const CommonField = require('../models/commonField');
+const CommonField = require('../models/commonfield');
 
 // TODO logging
 
