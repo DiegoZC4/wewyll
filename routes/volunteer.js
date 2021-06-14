@@ -155,6 +155,8 @@ router.delete('/:volunteerId', passport.authenticate(['jwt'], {session: false}),
           if (err) {
             logger.error(`database error when deleting volunteer: ${err}`);
             res.sendStatus(500);
+          } else if (!doc) {
+            res.sendStatus(404);
           } else {
             logger.info(`deleted volunteer ${volunteerId}`);
 
