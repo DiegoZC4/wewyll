@@ -20,6 +20,7 @@ const event = require('./routes/event');
 const organization = require('./routes/organization');
 const volunteer = require('./routes/volunteer');
 const commonField = require('./routes/commonField');
+const user = require('./routes/user');
 
 const UserData = require('./models/user');
 
@@ -62,6 +63,7 @@ apiRouter.use('/event', event);
 apiRouter.use('/organization', organization);
 apiRouter.use('/volunteer', volunteer);
 apiRouter.use('/commonfield', commonField);
+apiRouter.use('/user', user);
 
 let opts = {
   secretOrKeyProvider: jwks.passportJwtSecret({
