@@ -74,25 +74,27 @@ router.put('/:userId',
       if (user.admin) {
         logger.debug('user is admin');
 
-        if (!body._id || body._id !== userId) {
-          logger.warn(
-              `User create/edit request had missing or malformed _id field`);
-          return res.status(400).send(`Missing or malformed _id field`);
-        }
+        body._id = userId;
 
         const user = new UserData(body);
 
         let isNew;
 
-        if (await UserData.findById(body._id)) {
+        let userData = await UserData.findById(body._id);
+        if (userData) {
           logger.info(`Replacing existing user ${body._id}`);
+          userData.admin = body.admin;
+          userData.volunteer = body.volunteer;
+          userData.organization = body.organization;
           isNew = false;
         } else {
           logger.info(`Creating new user with ID ${body._id}`);
           isNew = true;
+          userData = new UserData(body);
+          isNew = true;
         }
 
-        user.save((err, doc) => {
+        userData.save((err, doc) => {
           if (err) {
             logger.error(`database error when saving user: ${err}`);
             res.sendStatus(500);

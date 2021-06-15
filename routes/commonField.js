@@ -93,6 +93,7 @@ router.put('/:fieldId',
           isNew = true;
         }
 
+        // FIXME this doesn't work when updating
         field.save((err, doc) => {
           if (err) {
             logger.error(`database error when saving common field: ${err}`);
