@@ -79,14 +79,16 @@ let opts = {
 };
 
 passport.use('jwt', new passportJwt.Strategy(opts, (jwtPayload, done) => {
-      UserData.findById(jwtPayload.sub).exec((err, user) => {
+      UserData.findById(jwtPayload.sub).exec(async (err, user) => {
         if (err) {
           return done(err)
         }
         if (user) {
           return done(null, user);
         } else {
-          return done(null, false);
+          let newUser = new UserData({_id: jwtPayload.sub});
+          newUser = await newUser.save();
+          return done(null, newUser);
         }
       })
     }
