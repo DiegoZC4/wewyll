@@ -13,8 +13,6 @@ const passportJwt = require('passport-jwt');
 const AnonymousStrategy = require('passport-anonymous').Strategy;
 const chalk = require('chalk');
 
-const {auth} = require('express-openid-connect');
-
 const app = express();
 
 const PORT = process.env.PORT || 5000; // Step 1
@@ -24,6 +22,7 @@ const organization = require('./routes/organization');
 const volunteer = require('./routes/volunteer');
 const commonField = require('./routes/commonField');
 const user = require('./routes/user');
+const webapp = require('./routes/webapp');
 
 const UserData = require('./models/user');
 
@@ -41,6 +40,8 @@ mongoose.connect(process.env.MONGODB_URI ||
 mongoose.connection.on('connected', () => {
   logger.info("Mongoose is connected");
 });
+
+app.set('view engine', 'pug')
 
 // Data parsing
 app.use(express.json());
@@ -100,39 +101,8 @@ passport.use('anon', new AnonymousStrategy());
 
 app.use(passport.initialize());
 
-// authentication for OpenID connect
-app.use(auth({
-  authRequired: false,
-  auth0Logout: true,
-  baseURL: process.env.BASE_URL,
-  clientID: process.env.CLIENT_ID,
-  issuerBaseURL: process.env.ISSUER_BASE_URL,
-  secret: process.env.SECRET,
-  clientSecret: process.env.SECRET,
-  authorizationParams: {
-    response_type: 'code',
-    audience: 'wewyll-api',
-  }
-}));
-
-app.get('/', (req, res) => {
-  if (req.oidc.isAuthenticated()) {
-    let { token_type, access_token } = req.oidc.accessToken;
-    res.send(`Logged in, API authorization ${token_type} ${access_token}`)
-  } else {
-    res.send("Logged out (go to /login to log in)")
-  }
-});
-
 app.use('/api', apiRouter);
-
-
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static('client/build'));
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-  });
-}
+app.use('/', webapp);
 
 logger.info(`Server starting at port ${PORT}`);
 app.listen(PORT);
