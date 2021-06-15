@@ -89,13 +89,13 @@ router.put('/:fieldId',
           logger.info(`Replacing existing common field ${body._id}`);
           isNew = false;
         } else {
-          logger.info(`Creating new common field with ID ${body.id}`);
+          logger.info(`Creating new common field with ID ${body._id}`);
           isNew = true;
         }
 
         field.save((err, doc) => {
           if (err) {
-            logger.error(`database error when finding common field: ${err}`);
+            logger.error(`database error when saving common field: ${err}`);
             res.sendStatus(500);
           } else {
             res.status(isNew ? 201 : 200).json(doc);
