@@ -1,16 +1,19 @@
 // Import npm packages
+require('dotenv').config()
+
 const express = require('express');
 const mongoose = require('mongoose');
 const winston = require('winston');
 const expressWinston = require('express-winston');
 const logger = require('./logging');
 const path = require('path');
-const jwt = require('express-jwt');
 const jwks = require('jwks-rsa');
 const passport = require('passport');
 const passportJwt = require('passport-jwt');
 const AnonymousStrategy = require('passport-anonymous').Strategy;
 const chalk = require('chalk');
+
+const {auth} = require('express-openid-connect');
 
 const app = express();
 
@@ -96,6 +99,30 @@ passport.use('jwt', new passportJwt.Strategy(opts, (jwtPayload, done) => {
 passport.use('anon', new AnonymousStrategy());
 
 app.use(passport.initialize());
+
+// authentication for OpenID connect
+app.use(auth({
+  authRequired: false,
+  auth0Logout: true,
+  baseURL: process.env.BASE_URL,
+  clientID: process.env.CLIENT_ID,
+  issuerBaseURL: process.env.ISSUER_BASE_URL,
+  secret: process.env.SECRET,
+  clientSecret: process.env.SECRET,
+  authorizationParams: {
+    response_type: 'code',
+    audience: 'wewyll-api',
+  }
+}));
+
+app.get('/', (req, res) => {
+  if (req.oidc.isAuthenticated()) {
+    let { token_type, access_token } = req.oidc.accessToken;
+    res.send(`Logged in, API authorization ${token_type} ${access_token}`)
+  } else {
+    res.send("Logged out (go to /login to log in)")
+  }
+});
 
 app.use('/api', apiRouter);
 
