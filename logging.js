@@ -31,6 +31,13 @@ if (process.env.NODE_ENV !== 'production') {
     format: alignedWithColorsAndTime,
     level: 'debug'
   }));
+} else {
+  logger.add(new winston.transports.Console({
+    format: format.combine(
+        format.align(),
+        format.printf(info => `${info.level}:${info.message}`)),
+    level: 'debug'
+  }));
 }
 
 module.exports = logger;
