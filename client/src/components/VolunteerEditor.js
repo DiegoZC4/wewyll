@@ -4,10 +4,12 @@ import {Button} from 'react-bootstrap';
 
 class VolunteerEditor extends React.Component {
   state = {
-    title: '',
-    body: '',
-    name: '',
+    firstname: '',
+    firstnameError: '',
+    lastname: '',
+    lastnameError: '',
     email: '',
+    emailError: '',
     age: '',
     volunteertype: '',
     interests: '',
@@ -17,6 +19,7 @@ class VolunteerEditor extends React.Component {
     languages: '',
     previousExperience: '',
     resume: '',
+    test: 'TEST',
     posts: []
   };
 
@@ -26,46 +29,75 @@ class VolunteerEditor extends React.Component {
   };
 
 
+  validate = () => {
+    let firstnameError = "";
+    let lastnameError = "";
+    let emailError = "";
+
+    if(!this.state.firstname) {
+      firstnameError = "Required"
+    }
+
+    if(!this.state.lastname) {
+      lastnameError = "Required"
+    }
+
+    if (!this.state.email.includes('@')) {
+      emailError = 'Invalid email address';
+    }
+    if (firstnameError || lastnameError || emailError) {
+      this.setState({ firstnameError, lastnameError, emailError });
+      return false;
+    }
+
+
+    return true;
+  }
+
   submit = (volunteer) => {
     volunteer.preventDefault();
 
-    const payload = {
-      title: this.state.title,
-      body: this.state.body,
-      name: this.state.name,
-      email: this.state.email,
-      age: this.state.age,
-      volunteertype: this.state.volunteertype,
-      interests: this.state.interests,
-      zipcode: this.state.zipcode,
-      transportation: this.state.transportation,
-      gender: this.state.gender,
-      languages: this.state.languages,
-      previousExperience: this.state.previousExperience,
-      resume: this.state.resume
+    const isValid = this.validate();
+    if (isValid) {
+      const payload = {
+        firstname: this.state.firstname,
+        lastname: this.state.lastname,
+        email: this.state.email,
+        age: this.state.age,
+        volunteertype: this.state.volunteertype,
+        interests: this.state.interests,
+        zipcode: this.state.zipcode,
+        transportation: this.state.transportation,
+        gender: this.state.gender,
+        languages: this.state.languages,
+        previousExperience: this.state.previousExperience,
+        resume: this.state.resume
 
-    };
+      };
 
-    axios({
-      url: '/api/saveVolunteer',
-      method: 'POST',
-      data: payload
-    })
-      .then(() => {
-        console.log('Data has been sent to the server');
-        this.resetUserInputs();
+      axios({
+        url: '/api/saveVolunteer',
+        method: 'POST',
+        data: payload
       })
-      .catch((err) => {
-        console.log(err);
-      });;
+        .then(() => {
+          console.log('Data has been sent to the server');
+          this.resetUserInputs();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   };
 
   resetUserInputs = () => {
     this.setState({
-      title: '',
-      body: '',
-      name: '',
+      firstname: '',
+      firstnameError: '',
+      lastname: '',
+      lastnameError: '',
       email: '',
+      emailError: '',
       age: '',
       volunteertype: '',
       interests: '',
@@ -82,37 +114,37 @@ class VolunteerEditor extends React.Component {
     return (
         <form onSubmit={this.submit}>
           <h2>Add Volunteer</h2>
-          <div className="form-input">
-            <input 
-              type="text"
-              name="title"
-              placeholder="Title"
-              value={this.state.title}
-              onChange={this.handleChange}
-            />
-          </div>
+
           <div className="form-input">
             <textarea
-              placeholder="body"
-              name="body"
+              placeholder="First name"
+              name="firstname"
               cols="30"
-              rows="10"
-              value={this.state.body}
+              rows="1"
+              value={this.state.firstname}
               onChange={this.handleChange}
             >
             </textarea>
           </div>
 
+          <div style={{ color: 'red'}} className="form-input">
+            {this.state.lastnameError}
+          </div>
+
           <div className="form-input">
             <textarea
-              placeholder="First and last name"
-              name="name"
+              placeholder="Last name"
+              name="lastname"
               cols="30"
               rows="1"
-              value={this.state.name}
+              value={this.state.lastname}
               onChange={this.handleChange}
             >
             </textarea>
+          </div>
+
+          <div style={{ color: 'red'}} className="form-input">
+            {this.state.lastnameError}
           </div>
 
           <div className="form-input">
@@ -125,6 +157,10 @@ class VolunteerEditor extends React.Component {
               onChange={this.handleChange}
             >
             </textarea>
+          </div>
+
+          <div style={{ color: 'red'}} className="form-input">
+            {this.state.emailError}
           </div>
 
           <div className="form-input">
@@ -234,6 +270,24 @@ class VolunteerEditor extends React.Component {
             >
             </textarea>
           </div>
+          
+          <div className="container p-5">
+            <select
+              className="custom-select"
+              onChange={(e) => {
+                const testval = e.target.value;
+                this.setState({ test: testval });
+                //setState({ this.setState });
+              }}
+            >
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+          </div>
+
+          <div>{this.state.test}</div>
+
           
           <Button variant='primary' type='submit'>Submit</Button>
         </form>

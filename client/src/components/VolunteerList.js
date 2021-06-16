@@ -31,9 +31,8 @@ class VolunteerList extends Component {
     return posts.map((post, index) => (
       <form onSubmit={this.deleteVolunteer} key={index} id={post._id}>
         <div className="blog-post__display">
-          <h3>{post.title}</h3>
-          <p>{post.body}</p>
-          <p>{post.name}</p>
+          <p>{post.firstname}</p>
+          <p>{post.lastname}</p>
           <p>{post.email}</p>
           <p>{post.age}</p>
           <p>{post.volunteertype}</p>
