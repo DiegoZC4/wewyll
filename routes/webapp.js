@@ -17,13 +17,14 @@ router.use(auth({
     audience: 'wewyll-api',
   }
 }));
+const PORT = process.env.PORT || 5000;
 
 router.get('/', async (req, res) => {
   if (req.oidc.isAuthenticated()) {
     let { token_type, access_token } = req.oidc.accessToken;
     let apiClient = axios.create({
       headers: {Authorization: `${token_type} ${access_token}`},
-      baseURL: `${process.env.BASE_URL}/api`
+      baseURL: `${process.env.BASE_URL}:${PORT}/api`
     })
 
     // user
