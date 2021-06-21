@@ -12,7 +12,7 @@ class EventList extends Component {
   };
 
   getEvent = () => {
-    axios.get('/api')
+    axios.get('/api/event')
       .then((response) => {
         const data = response.data;
         this.setState({ posts: data });
