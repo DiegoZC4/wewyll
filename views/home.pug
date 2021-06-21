@@ -1,0 +1,77 @@
+<!doctype html>
+html
+    head
+        title Home
+        style.
+          .mono {
+            font-family: monospace;
+          }
+          body {
+            padding: 3rem 1.5rem;
+          }
+
+        link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous")
+        meta(name="viewport" content="width=device-width, initial-scale=1")
+        //link(rel='stylesheet' href="https://unpkg.com/purecss@2.0.6/build/pure-min.css" integrity="sha384-Uu6IeWbM+gzNVXJcM9XV3SohHtmWE+3VGi496jvgX1jyvDTXfdK+rfZc8C1Aehk5" crossorigin="anonymous")
+    body
+        div(class='container mx-3')
+            h1 WeWyll API
+            if !login
+                a(class="btn btn-primary m-1" href="/login") Log in
+            else
+                p You are logged in as <span class="mono">#{user.id}</span>, also known as:
+                ul
+                    if user.volunteer
+                        li volunteer <span class="mono">#{user.volunteer || 'undefined'}</span>
+                    if user.organization
+                        li organization <span class="mono">#{user.organization}</span>
+                    if user.admin
+                        li administrator
+                    if !(user.volunteer || user.organization || user.admin)
+                        li no attached items
+                div(class="btn-toolbar")
+                    button(class="btn btn-info m-1" type="button" data-bs-toggle="collapse" data-bs-target="#authString" aria-expanded="false" aria-controls="authString") Show API token
+                    a(class="btn btn-danger m-1" href="/logout") Log Out
+                div(id="authString" class="collapse")
+                    div(class="card card-body mono my-2") #{user.authString}
+
+                h2 Events
+                table(class="table")
+                    thead
+                        tr
+                            th(scope="col") Title
+                            th(scope="col") Organization
+                            th(scope="col") ID
+                            th(scope="col") Organization ID
+                    each event in events
+                        tr
+                            th(scope="row") #{event.title}
+                            td #{event.orgName}
+                            td(class="mono") #{event._id}
+                            td(class="mono") #{event.organization}
+                h2 Organizations
+                table(class="table")
+                    thead
+                        tr
+                            th(scope="col") Name
+                            th(scope="col") ID
+                    each org in organizations
+                        tr
+                            th(scope="row") #{org.name}
+                            td(class="mono") #{org._id}
+                if user.admin
+                    h2 Users
+                    table(class="table")
+                        thead
+                            tr
+                                th(scope="col") ID
+                                th(scope="col") Volunteer
+                                th(scope="col") Organization
+                                th(scope="col") Administrator
+                        each userCred in users
+                            tr
+                                th(scope="row" class="mono") #{userCred._id}
+                                td(class="mono") #{userCred.volunteer}
+                                td(class="mono") #{userCred.organization}
+                                td(class="mono") #{userCred.admin || false}
+    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous")

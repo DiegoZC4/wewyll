@@ -1,0 +1,766 @@
+openapi: 3.0.0
+info:
+  description: "WeWyll API"
+  version: "0.1"
+  title: "WeWyll API"
+  contact:
+    email: "dev@wewyll.com"
+  license:
+    name: "Apache 2.0"
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+tags:
+  - name: "event"
+    description: "Create and edit volunteer events and signups"
+  - name: "organization"
+    description: "Create and edit organizations"
+  - name: "volunteer"
+    description: "Create and edit volunteer profiles"
+  - name: "common-field"
+    description: "Create and edit common fields"
+paths:
+  /event:
+    get:
+      tags: [ event ]
+      summary: "Get a list of events"
+      description: |
+        Query parameters can be used to narrow down a given search. If no
+        parameters are provided, the API will return all events
+        accessible by the provided authentication.
+      operationId: getEvents
+      # todo more search params
+      parameters:
+        - name: org
+          in: query
+          description: "Get events from a specific organization"
+          schema:
+            type: string
+            format: uuid
+            example: "af0820b1-afb6-43c3-b86e-6d2de2849d90"
+      responses:
+        '200':
+          description: |
+            Success
+
+            The server will respond with a 200 even if no events match
+            the provided parameters. In this case, it will return an empty list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventResponse"
+
+    post:
+      tags: [ event ]
+      summary: "Create a new event"
+      operationId: createEvent
+      requestBody:
+        required: true
+        description: "The event object to create."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Event"
+      responses:
+        '201':
+          description: |
+            Successfully created event. Object ID is returned in the
+            response body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventResponse"
+        '400':
+          description: "Invalid request"
+        '403':
+          description: |
+            Provided authentication does not have permission to
+            create events
+  /event/{eventId}:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+    get:
+      tags:
+        - "event"
+      summary: "Get an event"
+      operationId: getEvent
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventResponse"
+        '404':
+          description: |
+            Event not found.
+
+            *Note that the API will also
+            respond with a 404 when the resource does exist but the provided
+            authentication does not have permission to view it, to avoid
+            enumeration attacks.*
+    patch:
+      tags:
+        - event
+      summary: "Update an event"
+      operationId: editEvent
+      requestBody:
+        required: true
+        description: |
+          Modifications to the event object.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Event"
+            example:
+              name: "Assistant Counselor"
+              description: "Assist program lead and and engage students"
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventResponse"
+
+        '400':
+          description: "Invalid request"
+        '403':
+          description: |
+            Currently authenticated user does not have permission to edit this
+            event.
+        '404':
+          description: |
+            Event not found, or not visible to the current user.
+    delete:
+      tags:
+        - event
+      summary: "Delete an event"
+      operationId: deleteEvent
+      responses:
+        '200':
+          description: "Success"
+        '403':
+          description: |
+            Currently authenticated user does not have permission to delete this
+            event.
+        '404':
+          description: |
+            Event not found, or not visible to the current user.
+  /event/{eventId}/signup:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+    get:
+      tags: [ event ]
+      summary: "Get all sign-ups for an event"
+      operationId: getSignUps
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SignUp"
+        '403':
+          description: "Provided credential does not have authorization to view sign-ups"
+        '404':
+          description: |
+            Event not found
+
+            *Note that the API will also
+            respond with a 404 when the event does exist but the provided
+            authentication does not have permission to view it, to avoid
+            enumeration attacks.*
+    post:
+      tags: [ event ]
+      summary: "Create a new sign-up"
+      operationId: createSignUp
+      requestBody:
+        required: true
+        description: "Sign-up field data"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FieldData"
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignUp"
+        '400':
+          description: "Invalid request"
+          # todo: return error info?
+        '403':
+          description: "Provided credential does not have authorization to sign up"
+        '404':
+          description: |
+            Event not found
+
+            *Note that the API will also
+            respond with a 404 when the resource does exist but the provided
+            authentication does not have permission to view it, to avoid
+            enumeration attacks.*
+  /event/{eventId}/signup/{signUpId}:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+      - $ref: "#/components/parameters/SignUpId"
+    get:
+      tags: [ event ]
+      summary: Get a sign-up
+      operationId: getSignUp
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignUp"
+        '404':
+          description: |
+            Event or sign-up not found
+
+            *Note that the API will also
+            respond with a 404 when the resource does exist but the provided
+            authentication does not have permission to view it, to avoid
+            enumeration attacks.*
+    delete:
+      tags: [ event ]
+      summary: Delete a sign-up
+      operationId: deleteSignUp
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignUp"
+        '403':
+          description: "Provided authentication is not permitted to delete sign-up"
+        '404':
+          description: |
+            Event or sign-up not found
+
+            *Note that the API will also
+            respond with a 404 when the resource does exist but the provided
+            authentication does not have permission to view it, to avoid
+            enumeration attacks.*
+  /organization:
+    get:
+      tags: [ organization ]
+      # todo searching
+      summary: "Get all organizations"
+      operationId: getOrganizations
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                description: "Array containing organizations"
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrganizationResponse"
+    post:
+      tags: [ organization ]
+      summary: "Create a new organization"
+      operationId: createOrganization
+      requestBody:
+        required: true
+        description: "The organization to create"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Organization"
+      responses:
+        '201':
+          description: |
+            Successfully created organization. Object ID is returned in the response body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationResponse"
+        '400':
+          description: "Invalid request"
+        '403':
+          description: |
+            Provided authentication does not have permission to
+            create organization
+  /organization/{orgId}:
+    parameters:
+      - $ref: "#/components/parameters/OrgId"
+    get:
+      tags: [ organization ]
+      summary: "Get organization info"
+      operationId: getOrganization
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationResponse"
+        '404':
+          description: |
+            Organization not found.
+
+            *Note that the API will also
+            respond with a 404 when the resource does exist but the provided
+            authentication does not have permission to view it, to avoid
+            enumeration attacks.*
+    patch:
+      tags: [ organization ]
+      summary: "Update an organization"
+      operationId: editOrganization
+      requestBody:
+        required: true
+        description: |
+          Modifications to the event object.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Organization"
+            example:
+              name: "Three Hart Connection"
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationResponse"
+
+        '400':
+          description: "Invalid request"
+        '403':
+          description: |
+            Currently authenticated user does not have permission to edit this
+            event.
+        '404':
+          description: |
+            event not found, or not visible to the current user.
+    delete:
+      tags:
+        - organization
+      summary: "Delete an organization"
+      operationId: deleteOrg
+      responses:
+        '200':
+          description: "Success"
+        '403':
+          description: |
+            Currently authenticated user does not have permission to delete this
+            organization.
+        '404':
+          description: |
+            Organization not found, or not visible to the current user.
+  /commonfield:
+    get:
+      tags: [ common-field ]
+      summary: "List available common fields"
+      operationId: getCommonFields
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                description: "Array containing available common fields"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Field"
+  /volunteer:
+    get:
+      summary: "Get a list of volunteers"
+      tags: [ volunteer ]
+      # todo search parameters
+      operationId: getVolunteers
+      responses:
+        '200':
+          description: |
+            Success
+
+            The server will respond with a 200 even if no events match
+            the provided parameters. In this case, it will return an empty list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VolunteerResponse'
+    post:
+      summary: "Create a new volunteer"
+      tags: [ volunteer ]
+      operationId: createVolunteer
+      requestBody:
+        required: true
+        description: "The volunteer object to create."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Volunteer"
+      responses:
+        '201':
+          description: |
+            Successfully created volunteer. Object ID is returned in the
+            response body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VolunteerResponse"
+        '400':
+          description: "Invalid request"
+        '403':
+          description: |
+            Provided authentication does not have permission to
+            create volunteers
+  /volunteer/{volunteerId}:
+    parameters:
+      - name: volunteerId
+        required: true
+        in: path
+        description: "Volunteer ID"
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: "Get a volunteer"
+      tags: [ volunteer ]
+      operationId: getVolunteer
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VolunteerResponse"
+        '404':
+          description: |
+            Volunteer not found.
+
+            *Note that the API will also
+            respond with a 404 when the resource does exist but the provided
+            authentication does not have permission to view it, to avoid
+            enumeration attacks.*
+    patch:
+      summary: "Update a volunteer"
+      tags: [ volunteer ]
+      operationId: editVolunteer
+      requestBody:
+        required: true
+        description: |
+          Modifications to the volunteer object.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Volunteer"
+            example:
+              name: "Jane Smith"
+              commonFieldPrefill:
+                - field: name
+                  response: "Jane Smith"
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VolunteerResponse"
+              example:
+                _id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                name: "Jane Smith"
+                commonFieldPrefill:
+                  - field: name
+                    response: "Jane Smith"
+        '400':
+          description: "Invalid request"
+        '403':
+          description: |
+            Currently authenticated user does not have permission to edit this
+            volunteer.
+        '404':
+          description: |
+            Volunteer not found, or not visible to the current user.
+    delete:
+      tags: [ volunteer ]
+      summary: "Delete a volunteer"
+      operationId: deleteVolunteer
+      responses:
+        '200':
+          description: "Success"
+        '403':
+          description: |
+            Currently authenticated user does not have permission to delete this
+            volunteer.
+        '404':
+          description: |
+            Volunteer not found, or not visible to the current user.
+  # Implementation note: common-fields use GET+PUT because their internal IDs are user
+  # -specified, while UUIDs for organizations and events are assigned by the server.
+  /commonfield/{fieldId}:
+    parameters:
+      - name: fieldId
+        required: true
+        in: path
+        example: "firstName"
+        description: "Field ID"
+        schema:
+          type: string
+    get:
+      tags: [ common-field ]
+      summary: "Get info for a specific common field"
+      operationId: getCommonField
+      responses:
+        '200':
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Field"
+        '404':
+          description: "Field not found"
+    put:
+      tags: [ common-field ]
+      summary: "Create a new common field or modify an existing field"
+      operationId: putCommonField
+      requestBody:
+        required: true
+        description: |
+          Data of the field to create or update. `id` must match the `field` parameter
+          in the URL.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Field"
+      responses:
+        '200':
+          description: "Success; field already existed and has been updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Field"
+        '201':
+          description: "Success; field has been created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Field"
+        '400':
+          description: "Invalid request"
+        '403':
+          description: "Provided credential does not have permission to edit common fields"
+    delete:
+      tags: [ common-field ]
+      summary: "Delete a common field"
+      operationId: deleteCommonField
+      responses:
+        '200':
+          description: "Success"
+        '403':
+          description: "Provided credential does not have permission to edit common fields"
+        '404':
+          description: "Field not found"
+components:
+  schemas:
+    OrganizationResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            _id:
+              type: string
+              format: uuid
+              description: "Unique ID for the organization"
+        - $ref: "#/components/schemas/Organization"
+        - required: [ id, name ]
+    Organization:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "User-facing name"
+          example: "Hollywood Food Coalition"
+    EventResponse:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            _id:
+              type: "string"
+              format: "uuid"
+              description: "Unique ID for the event"
+        - $ref: "#/components/schemas/Event"
+        - required: [ "id", "name" ]
+    Event:
+      type: object
+      properties:
+        name:
+          type: "string"
+          description: "User-facing name"
+          example: "Program Lead"
+        organization:
+          type: string
+          description: "ID of the organization"
+          format: "uuid"
+        description:
+          type: "string"
+          description: "Description"
+          example: "Prepare and serve meals to those in need."
+        location:
+          type: "string"
+          description: "Location of the event (can be any string)"
+          example: "West LA"
+          # TODO: Provide option for actual geolocation?
+        time:
+          type: "string"
+          description: "Time or other temporal specifier"
+          example: "Summer 2021"
+          # TODO: option for actual times
+        approved:
+          type: boolean
+          description: "Whether the event has been approved by an administrator"
+        image:
+          type: string
+          format: uri
+          description: "URL of event image"
+          example: "https://wewyll.com/images/dQw4w9WgXcQ.png"
+          # todo: how to upload those
+        # todo: more stuff like contact info
+        commonFields:
+          type: "array"
+          description: "List of common fields for volunteer signup"
+          items:
+            type: string
+          example: [ name, dob, address ]
+        customFields:
+          type: "array"
+          description: "List of custom fields for volunteer signup"
+          items:
+            $ref: "#/components/schemas/Field"
+    Field:
+      type: "object"
+      properties:
+        _id:
+          type: "string"
+          description: "Internal ID"
+          example: "favoriteColor"
+        label:
+          type: string
+          description: "User-facing label for the field"
+          example: "What is your favorite color?"
+        type:
+          type: string
+          enum:
+            - "string"
+            - "integer"
+            - "date"
+            # add more
+        required:
+          type: boolean
+        suggestedInput:
+          type: "string"
+          description: "A suggested input for the form, or null if no suggestion should be made"
+          nullable: true
+          default: null
+      required:
+        - "id"
+        - "label"
+        - "type"
+        - "required"
+        - "suggested input"
+    SignUp:
+      allOf:
+        - type: object
+          properties:
+            _id:
+              type: string
+              format: uuid
+              description: "Signup ID"
+            timestamp:
+              type: string
+              format: date-time
+              description: "The time the signup was submitted"
+            user:
+              type: string
+              nullable: true
+              format: uuid
+              description: "ID of the user that submitted the signup, if available"
+          required: [ timestamp, user ]
+        - $ref: "#/components/schemas/FieldData"
+
+    FieldData:
+      type: object
+      properties:
+        fieldData:
+          type: array
+          description: "A list of responses corresponding to the fields"
+          items:
+            $ref: "#/components/schemas/FieldEntry"
+      required: [ fieldData ]
+    FieldEntry:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: "ID of a custom or common field"
+          example: "name"
+        response:
+          description: "The matching response data"
+          type: string
+          example: "John Smith"
+      required: [ field, response ]
+    VolunteerResponse:
+      allOf:
+        - type: object
+          properties:
+            _id:
+              type: "string"
+              format: "uuid"
+              description: "Unique volunteer ID"
+        - $ref: '#/components/schemas/Volunteer'
+        - required: [ id, name ]
+    Volunteer:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Volunteer name"
+          example: "John Smith"
+        # todo: other crap
+        commonFieldPrefill:
+          type: array
+          description: "Prefilled values for common fields"
+          items:
+            $ref: "#/components/schemas/FieldEntry"
+  parameters:
+    eventId:
+      name: eventId
+      in: path
+      description: "event ID"
+      required: true
+      schema:
+        type: "string"
+        format: "uuid"
+      example: "b8296329-acd0-4e93-ad64-6f6c330c64ed"
+
+    SignUpId:
+      name: signUpId
+      in: path
+      description: "Sign-up ID"
+      required: true
+      schema:
+        type: "string"
+        format: "uuid"
+      example: "b8296329-acd0-4e93-ad64-6f6c330c64ed"
+    OrgId:
+      name: orgId
+      in: path
+      description: "Organization ID"
+      required: true
+      schema:
+        type: "string"
+        format: "uuid"
+      example: "a04ed2d9-1f0a-4ce5-b649-55aa308b07a8"
