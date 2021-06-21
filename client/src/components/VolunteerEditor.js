@@ -1,6 +1,15 @@
 import React from 'react'
 import axios from 'axios';
 import {Button} from 'react-bootstrap';
+//import {Form, Col, Dropdown} from 'react-bootstrap';
+import Select from 'react-select'
+
+// const options = [
+//   { value: 'Male', label: 'Male' },
+//   { value: 'Female', label: 'Female' },
+//   { value: 'Prefer not to say', label: 'Prefer not to say' }
+// ]
+
 
 class VolunteerEditor extends React.Component {
   state = {
@@ -19,7 +28,6 @@ class VolunteerEditor extends React.Component {
     languages: '',
     previousExperience: '',
     resume: '',
-    test: 'TEST',
     posts: []
   };
 
@@ -223,16 +231,19 @@ class VolunteerEditor extends React.Component {
             </textarea>
           </div>
 
-          <div className="form-input">
-            <textarea
-              placeholder="Gender"
-              name="gender"
-              cols="30"
-              rows="1"
-              value={this.state.gender}
-              onChange={this.handleChange}
+          <div className="container p-5">
+            <select
+              className="custom-select"
+              onChange={(e) => {
+                const gender = e.target.value;
+                this.setState({ gender });
+              }}
             >
-            </textarea>
+              <option value="Gender" disabled>Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
           </div>
 
           <div className="form-input">
@@ -259,6 +270,8 @@ class VolunteerEditor extends React.Component {
             </textarea>
           </div>
 
+          
+
           <div className="form-input">
             <textarea
               placeholder="Resume"
@@ -270,25 +283,15 @@ class VolunteerEditor extends React.Component {
             >
             </textarea>
           </div>
-          
-          <div className="container p-5">
-            <select
-              className="custom-select"
-              onChange={(e) => {
-                const testval = e.target.value;
-                this.setState({ test: testval });
-                //setState({ this.setState });
-              }}
-            >
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Prefer not to say">Prefer not to say</option>
-            </select>
-          </div>
 
-          <div>{this.state.test}</div>
-
-          
+          {/* <Select onChange={ (e) => {
+            const gender = e.target.value;
+            this.setState({ gender });
+          }
+          }
+            options={options}
+          /> */}
+                  
           <Button variant='primary' type='submit'>Submit</Button>
         </form>
     )
