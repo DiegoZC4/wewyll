@@ -29,6 +29,32 @@ router.get('/',
         query.where('organization').equals(req.query.org);
       }
 
+      const body = req.body;
+
+      if (body) {
+        try {
+          for (const [key, value] of Object.entries(body)) {
+            switch (value.test) {
+              case "oneOf":
+                query.where(`eventMetadata`).elemMatch(
+                    {id: key, response: {$in: value.values}}
+                );
+                break;
+              case "range":
+                query.where(`eventMetadata`).elemMatch(
+                    {id: key, response: {$gte: value.low, $lte: value.high}}
+                );
+                break;
+              case "exists":
+                query.where(`eventMetadata.id`).equals(key);
+                break;
+            }
+          }
+        } catch (e) {
+          return res.status(400).send("malformed metadata string");
+        }
+      }
+
       if (!(user && user.admin)) {
         logger.debug(`user does not have access to unapproved events`);
         query.where('approved').equals(true);
@@ -220,7 +246,7 @@ router.patch('/:eventId',
           }
         }
 
-        // TODO better validation for commonfields/customfields
+        // TODO better validation for commonfields/customfields/metadata
 
         if (body._id && body._id !== event._id) {
           logger.warn(`user is trying to change event ID`);
@@ -351,7 +377,6 @@ router.post('/:eventId/signup',
           res.status(400).send("missing fieldData in body");
           return;
         }
-
 
         // FIXME signups can be added that don't have _id parameters in their
         //  field data
