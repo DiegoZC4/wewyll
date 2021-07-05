@@ -8,27 +8,6 @@ const Organization = require('../models/organization');
 
 const Volunteer = require('../models/volunteer');
 
-// const multer = require('multer')
-
-// //img storage
-// const storage = multer.diskStorage({
-//     destination: function(request, file, callback) {
-//         callback(null, './images');
-//     },
-
-//     filename: function(request, file, callback) {
-//         callback(null, Date.now()+file.originalname);
-//     }
-
-// });
-
-// const upload = multer({
-//     storage: storage,
-//     limits: {
-//         fileSize: 1024 * 1024 * 5
-//     }
-// })
-
 // Routes
 router.get('/', (req, res) => {
     Event.find({  })
