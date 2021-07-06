@@ -17,7 +17,7 @@ const eventSchema = new Schema({
   image: String,
   eventMetadata: [
     {
-      id: String,
+      _id: String,
       response: mongoose.Mongoose.Mixed
     }
   ],
