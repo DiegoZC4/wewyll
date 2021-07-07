@@ -53,7 +53,7 @@ body {
   cursor: pointer;
   font-size: 20px;
   font-family: inherit;
-  width: 130px;
+  width: 150px;
 }
 
 .butn:hover {
@@ -83,11 +83,52 @@ body {
 }
 
 .volunteer {
-  background: #40ccb4;
-  margin: 5px;
-  padding: 10px 20px;
+  margin: 20px;
+  background-color: #40ccb4;
+  width: 500px;
   border-radius: 10px;
+  padding: 10px;
+  color: #fff;
+}
+
+.event-title {
+  margin: 20px;
+}
+
+.event {
+  margin: 20px;
+  background-color: #40ccb4;
+  width: 500px;
+  border-radius: 10px;
+  padding: 10px;
+  color: #fff;
+}
+
+.event-values {
+  margin: 20px;
+  padding: 10px;
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  width: 150px;
+}
+
+.event-keys {
   color: white;
+  max-width: 250px;
+}
+
+.inforow {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  margin: 10px;
+}
+
+.event h3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .signup-butn {

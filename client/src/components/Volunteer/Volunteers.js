@@ -1,4 +1,4 @@
-import Volunteer from './Volunteer.js'
+import Volunteer from './Volunteer'
 import React from 'react'
 
 const Volunteers = ({ volunteers, onDelete }) => {

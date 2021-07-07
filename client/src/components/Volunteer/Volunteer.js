@@ -16,6 +16,8 @@ const Volunteer = ({ volunteer, onDelete }) => {
                 />
             </h3>
             <p>{volunteer.email}</p>
+            {/* <p>{volunteer.zipcode}</p>
+            <p>{volunteer.interests}</p> */}
         </div>
     )
 }

@@ -6,13 +6,8 @@ const defaultForm = {
     firstName: '',
     lastName: '',
     email: '',
-    gender: '',
-    dob: '',
     zipcode: '',
-    prevExperience: false,
-    languages: '',
     interests: '',
-    transportation: ''
 }
 
 const AddVolunteer = ({ onAdd }) => {

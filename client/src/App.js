@@ -7,7 +7,8 @@ import React from 'react';
 // import VolunteerEditor from './components/VolunteerEditor';
 // import VolunteerList from './components/VolunteerList';
 // import Upload from './components/Upload';
-import VolunteerOnboard from './components/VolunteerOnboard';
+import VolunteerOnboard from './components/Volunteer/VolunteerOnboard';
+import EventPanel from './components/Event/EventPanel';
 
 import './index.css';
 
@@ -25,7 +26,8 @@ class App extends React.Component {
         {/* <WeNav/> */}
         <h1>Welcome to WeWyll</h1>
 
-        <VolunteerOnboard />
+        <EventPanel/>
+        {/* <VolunteerOnboard /> */}
 
         {/* <EventList/>
         <br/>

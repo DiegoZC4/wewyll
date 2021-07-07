@@ -13,18 +13,21 @@ function VolunteerOnboard() {
         lastName: 'Jones',
         email: 'sjones5@swarthmore.edu',
         zipcode: '06001',
+        interests: 'Food banks'
     },
     {
-        firstName: 'John',
-        lastName: 'Dog',
-        email: 'john5@swarthmore.edu',
+        firstName: 'Sara',
+        lastName: 'Lee',
+        email: 'slee1@swarthmore.edu',
         zipcode: '19121',
+        interests: 'Construction'
     },
     {
         firstName: 'Tom',
-        lastName: 'Cat',
-        email: 'toms5@swarthmore.edu',
+        lastName: 'Peterson',
+        email: 'tpeterson3@swarthmore.edu',
         zipcode: '90864',
+        interests: 'Painting'
     }
   ])
 
