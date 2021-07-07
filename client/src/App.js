@@ -1,12 +1,16 @@
 import React from 'react';
-import WeNav from './components/WeNav';
-import EventEditor from './components/EventEditor';
-import EventList from './components/EventList';
-import OrganizationEditor from './components/OrganizationEditor';
-import OrganizationList from './components/OrganizationList';
-import VolunteerEditor from './components/VolunteerEditor';
-import VolunteerList from './components/VolunteerList';
-import Upload from './components/Upload';
+// import WeNav from './components/WeNav';
+// import EventEditor from './components/EventEditor';
+// import EventList from './components/EventList';
+// import OrganizationEditor from './components/OrganizationEditor';
+// import OrganizationList from './components/OrganizationList';
+// import VolunteerEditor from './components/VolunteerEditor';
+// import VolunteerList from './components/VolunteerList';
+// import Upload from './components/Upload';
+import VolunteerOnboard from './components/VolunteerOnboard';
+
+import './index.css';
+
 import './App.css';
 
 class App extends React.Component {
@@ -18,13 +22,12 @@ class App extends React.Component {
     //JSX
     return(
       <div className="app">
-        <WeNav/>
-        <br/>
-        <Upload/>
-        <br/>
-        <hr/>
+        {/* <WeNav/> */}
         <h1>Welcome to WeWyll</h1>
-        <EventList/>
+
+        <VolunteerOnboard />
+
+        {/* <EventList/>
         <br/>
         <EventEditor/>
         <hr/>
@@ -36,7 +39,7 @@ class App extends React.Component {
         <br />
         <VolunteerList/>
         <br/>
-        <VolunteerEditor/>
+        <VolunteerEditor/> */}
       </div>
     );
   }
