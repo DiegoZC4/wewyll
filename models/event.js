@@ -15,6 +15,12 @@ const eventSchema = new Schema({
   time: String,
   approved: Boolean,
   image: String,
+  eventMetadata: [
+    {
+      _id: String,
+      response: mongoose.Mongoose.Mixed
+    }
+  ],
   commonFields: [String],
   customFields: [
     {
