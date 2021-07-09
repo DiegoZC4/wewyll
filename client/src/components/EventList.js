@@ -1,35 +1,60 @@
-import React, { Component } from 'react'
+import React, {useState, useEffect } from 'react'
 import axios from 'axios';
 import {Button} from 'react-bootstrap';
+import { useAuth0 } from "@auth0/auth0-react";
 
-class EventList extends Component {
-    state = {
-        posts: []
-    }
-    
-  componentDidMount = () => {
-    this.getEvent();
-  };
+const EventList = () => {
+  const [events, setEvents] = useState([]);
+  const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
+  console.log("auth0 data",user, isAuthenticated, getAccessTokenSilently);
+  // const accessToken = getAccessTokenSilently({
+  //   audience: `wewyll-api`,
+  // });
+  
+  // const getEvent = () => {
 
-  getEvent = () => {
-    axios.get('/api/event')
+  //   axios.get('/api/event', {headers: {Authorization: `Bearer ${accessToken}`}})
+  //     .then((response) => {
+  //       const data = response.data;
+  //       setEvents(data);
+  //       console.log('Data has been received!!', user, isAuthenticated);
+  //     })
+  //     .catch((err) => {
+  //       alert('Error retrieving data!!!');
+  //       console.log(err);
+  //     });
+  //   }
+  const getEvent = async () => {
+    try {
+      const accessToken = await getAccessTokenSilently({
+        audience: 'wewyll-api',
+      });
+      axios.get('/api/event', {headers: {Authorization: `Bearer ${accessToken}`}})
       .then((response) => {
         const data = response.data;
-        this.setState({ posts: data });
-        console.log('Data has been received!!');
+        setEvents(data);
+        console.log('Data has been received!!', isAuthenticated);
       })
-      .catch((err) => {
-        alert('Error retrieving data!!!');
-        console.log(err);
-      });
-  }
-  displayEvent = (posts) => {
+    } catch (e) {
+      console.log(e.message);
+    }
+  };
+    
+  // useEffect(() => {
+  //     getEvent();
+  //   }, []);
+    
+    // useEffect(() => {
+    //   getEvent();
+    // });
+
+  const displayEvents = (posts) => {
 
     if (!posts.length) return null;
     console.log(posts);
 
-    return posts.map((post, index) => (
-      <form onSubmit={this.deleteEvent} key={index} id={post._id}>
+    return isAuthenticated && posts.map((post, index) => (
+      <form onSubmit={deleteEvent} key={index} id={post._id}>
         <div className="blog-post__display">
           <h3>{post.title}</h3>
           <p>{post.body}</p>
@@ -40,32 +65,32 @@ class EventList extends Component {
   };
 
   
-  deleteEvent = (event) => {
-    console.log(event.target.id);
-    event.preventDefault();
-    axios({
-      url: '/api/delete',
-      method: 'POST',
-      data: {id: event.target.id}
-    })
-      .then(() => {
-        console.log('Event has been deleted');
-        this.getEvent();
+  const deleteEvent = async (event) => {
+    try {
+      let id = event.target.id
+      console.log(id);
+      event.preventDefault();
+      const accessToken = await getAccessTokenSilently({
+        audience: 'wewyll-api',
+      });
+      axios.delete(`/api/event/${id}`, {headers: {Authorization: `Bearer ${accessToken}`}})
+      .then((response) => {
+        console.log('Event deleted', response);
       })
-      .catch((err) => {
-        console.log('Error',err);
-      });;
-  };
-
-    render() {
-        return (
-            <div className="blog-">
-                <h2>Events</h2>
-                <Button variant='success' onClick={this.getEvent}>Refresh</Button>
-                {this.displayEvent(this.state.posts)}
-            </div>
-        )
+    } catch (e) {
+      console.log(e.message);
     }
+  }
+  
+    
+    return (
+        <div className="blog-">
+            <h2>Events</h2>
+            <Button variant='success' onClick={getEvent}>Refresh</Button>
+            {displayEvents(events)}
+        </div>
+    );
+  
 }
 
 export default EventList

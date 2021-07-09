@@ -4,7 +4,6 @@ const router = express.Router();
 
 const Event = require('../models/event');
 
-
 // Routes
 router.get('/', (req, res) => {
     Event.find({  })
@@ -19,7 +18,6 @@ router.get('/', (req, res) => {
 
 router.post('/save', (req, res) => {
     const data = req.body;
-
     const newEvent = new Event(data);
 
     newEvent.save((error) => {
