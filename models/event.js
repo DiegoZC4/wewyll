@@ -18,7 +18,7 @@ const eventSchema = new Schema({
   eventMetadata: [
     {
       _id: String,
-      response: mongoose.Mongoose.Mixed
+      response: Schema.Types.Mixed
     }
   ],
   commonFields: [String],

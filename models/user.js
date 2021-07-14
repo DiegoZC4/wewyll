@@ -5,7 +5,8 @@ const Schema = mongoose.Schema;
 const userDataSchema = new Schema({
   _id: String,
   volunteer: String,
-  organization: String,
+  nonProfit: String,
+  business: String,
   admin: Boolean,
 });
 

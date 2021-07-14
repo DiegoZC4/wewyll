@@ -9,7 +9,7 @@ const router = express.Router();
 
 const logger = require('../logging');
 const Event = require('../models/event');
-const Organization = require('../models/organization');
+const nonprofit = require('../models/nonprofit');
 const CommonField = require('../models/commonfield');
 
 // router will be mounted on /event
@@ -26,7 +26,7 @@ router.get('/',
       // TODO more params
       if (req.query.org) {
         logger.debug(`searching for events with org ${req.query.org}`);
-        query.where('organization').equals(req.query.org);
+        query.where('nonprofit').equals(req.query.org);
       }
 
       const body = req.body;
@@ -84,22 +84,22 @@ router.post('/',
       logger.debug(`request body: ${body}`);
 
       let org;
-      if (body.organization) {
-        org = await Organization.findById(body.organization).exec();
+      if (body.nonprofit) {
+        org = await nonprofit.findById(body.nonprofit).exec();
       }
 
       let authOk = false;
       if (user.admin) {
         logger.debug(`user is admin`);
         authOk = true;
-      } else if (user.organization) {
+      } else if (user.nonprofit) {
         // do you exist
-        if (org && body && user.organization === body.organization) {
-          logger.debug(`user organization matches organization in body`);
+        if (org && body && user.nonprofit === body.nonprofit) {
+          logger.debug(`user nonprofit matches nonprofit in body`);
           authOk = true;
         } else {
           logger.debug(
-              `user organization mismatched with body or does not exist`);
+              `user nonprofit mismatched with body or does not exist`);
         }
       }
 
@@ -121,15 +121,15 @@ router.post('/',
         return;
       }
 
-      if (!body.organization) {
-        logger.warn(`request body missing parameter: organization`);
-        res.status(400).send('Missing parameter: organization');
+      if (!body.nonprofit) {
+        logger.warn(`request body missing parameter: nonprofit`);
+        res.status(400).send('Missing parameter: nonprofit');
         return;
       }
 
       if (!org) {
-        logger.warn(`organization ${body.organization} does not exist`);
-        res.status(400).send("organization does not exist");
+        logger.warn(`nonprofit ${body.nonprofit} does not exist`);
+        res.status(400).send("nonprofit does not exist");
         return;
       }
 
@@ -168,12 +168,12 @@ router.get('/:eventId',
       let event = await Event.findById(eventId).exec();
       // if the event does not exist, we return a 404
       // but we ALSO do a 404 if it's not approved yet and we aren't either
-      // 1) its organization or 2) an admin
+      // 1) its nonprofit or 2) an admin
       if (!event) {
         logger.warn(`event ${eventId} does not exist`);
         res.sendStatus(404);
       } else if (!event.approved && !(user &&
-          (user.organization === event.organization || user.admin))) {
+          (user.nonprofit === event.nonprofit || user.admin))) {
         logger.warn(`event ${eventId} exists but has not been approved yet`);
         res.sendStatus(404);
       } else {
@@ -208,7 +208,7 @@ router.patch('/:eventId',
         logger.warn(`event ${eventId} does not exist`);
         // it just doesn't exist
         res.sendStatus(404);
-      } else if (user.organization !== event.organization && !user.admin) {
+      } else if (user.nonprofit !== event.nonprofit && !user.admin) {
         logger.warn(`user does not have edit permissions for this event`);
         if (event.approved) {
           // we can see the event but can't edit
@@ -219,24 +219,24 @@ router.patch('/:eventId',
         }
       } else {
         // we can edit
-        if (body.organization) {
+        if (body.nonprofit) {
           if (user.admin) {
-            if (await Organization.findById(body.organization).exec()) {
-              event.organization = body.organization;
+            if (await nonprofit.findById(body.nonprofit).exec()) {
+              event.nonprofit = body.nonprofit;
             } else {
-              logger.warn(`new organization ${body.organization} not found`);
-              res.status(400).send("organization does not exist"); // not allowed to edit ID
+              logger.warn(`new nonprofit ${body.nonprofit} not found`);
+              res.status(400).send("nonprofit does not exist"); // not allowed to edit ID
               return;
             }
           } else {
             logger.warn(`user is not an admin but is trying to change org ID`);
-            res.status(403).send("cannot change organization ID");
+            res.status(403).send("cannot change nonprofit ID");
           }
         }
 
         if (body.approved !== event.approved) {
           if (user.admin) {
-            // TODO: allow organizations to revoke approval?
+            // TODO: allow nonprofits to revoke approval?
             // TODO: should approval be revoked on any edit?
             event.approved = body.approved;
           } else {
@@ -284,7 +284,7 @@ router.delete('/:eventId',
         logger.warn(`event ${eventId} does not exist`);
         // it just doesn't exist
         res.sendStatus(404);
-      } else if (user.organization !== event.organization && !user.admin) {
+      } else if (user.nonprofit !== event.nonprofit && !user.admin) {
         logger.warn(`user does not have delete permissions for this event`);
         if (event.approved) {
           // we can see the event but can't delete
@@ -322,7 +322,7 @@ router.get('/:eventId/signup',
         // it just doesn't exist
         logger.warn(`event ${eventId} does not exist`);
         res.sendStatus(404);
-      } else if (user.organization !== event.organization && !user.admin) {
+      } else if (user.nonprofit !== event.nonprofit && !user.admin) {
         logger.warn(`user is not authorized to view signups for this event`);
         if (event.approved) {
           // we can see the event but not signups
@@ -355,7 +355,7 @@ router.post('/:eventId/signup',
         logger.warn(`event ${eventId} does not exist`);
         res.sendStatus(404);
       } else if (!event.approved && !(user &&
-          (user.organization === event.organization || user.admin))) {
+          (user.nonprofit === event.nonprofit || user.admin))) {
         logger.warn(`event ${eventId} exists but has not been approved yet`);
         // doesn't exist, or we can't see it
         res.sendStatus(404);
@@ -436,7 +436,7 @@ router.get('/:eventId/signup/:signUpId',
       }
 
       let hasViewAuth = user &&
-          (user.admin || user.organization === event.organization);
+          (user.admin || user.nonprofit === event.nonprofit);
 
       if (event.approved || hasViewAuth) {
         let signUp = event.signUps.find(s => s._id === signUpId);
@@ -484,7 +484,7 @@ router.delete('/:eventId/signup/:signUpId',
         return;
       }
 
-      let hasViewAuth = user.admin || user.organization === event.organization;
+      let hasViewAuth = user.admin || user.nonprofit === event.nonprofit;
 
       // if you can view a sign-up, you can delete it
       if (event.approved || hasViewAuth) {

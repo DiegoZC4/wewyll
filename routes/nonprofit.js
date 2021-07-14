@@ -5,18 +5,18 @@ const logger = require('../logging');
 
 const router = express.Router();
 
-const Organization = require('../models/organization');
+const nonprofit = require('../models/nonprofit');
 
-// router will be mounted on /organization
+// router will be mounted on /nonprofit
 router.get('/',
     passport.authenticate(['jwt', 'anon'], {session: false}),
     async (req, res) => {
       const user = req.user;
       logger.debug(`user: ${user}`);
 
-      let orgs = await Organization.find().exec();
+      let orgs = await nonprofit.find().exec();
 
-      logger.debug(`found ${orgs.length} organizations`);
+      logger.debug(`found ${orgs.length} nonprofits`);
       res.json(orgs);
     });
 
@@ -30,19 +30,19 @@ router.post('/',
       logger.debug(`body: ${body}`);
 
       if (user.admin) {
-        const newOrg = new Organization(body);
+        const newOrg = new nonprofit(body);
         newOrg._id = uuidv4();
         const response = await newOrg.save();
         if (response) {
-          logger.info(`created new organization ${response._id}`);
+          logger.info(`created new nonprofit ${response._id}`);
           res.status(201).json(response);
         } else {
-          logger.error(`database error on creating new organization`);
+          logger.error(`database error on creating new nonprofit`);
           res.sendStatus(500);
         }
       } else {
         logger.debug(
-            'user does not have authorization to create organizations');
+            'user does not have authorization to create nonprofits');
         res.sendStatus(403);
       }
     });
@@ -55,9 +55,9 @@ router.get('/:orgId',
 
       logger.debug(`user: ${user}`);
 
-      Organization.findById(orgId).exec((err, doc) => {
+      nonprofit.findById(orgId).exec((err, doc) => {
         if (err) {
-          logger.error(`database error on organization query: ${err}`);
+          logger.error(`database error on nonprofit query: ${err}`);
           res.sendStatus(500);
         } else {
           if (doc) {
@@ -82,18 +82,18 @@ router.patch('/:orgId',
 
       if (user.admin) {
         logger.debug('user is admin');
-      } else if (user.organization && user.organization === orgId) {
-        logger.debug('user is from this organization');
+      } else if (user.nonprofit && user.nonprofit === orgId) {
+        logger.debug('user is from this nonprofit');
       } else {
-        logger.warn(`user does not have permission to edit organization`);
+        logger.warn(`user does not have permission to edit nonprofit`);
         return res.sendStatus(403);
       }
 
-      let org = await Organization.findById(orgId).exec();
+      let org = await nonprofit.findById(orgId).exec();
       if (org) {
         // TODO more fields
         if (body._id && body._id !== org._id) {
-          logger.warn(`user is trying to change organization ID`);
+          logger.warn(`user is trying to change nonprofit ID`);
         }
         delete body._id;
 
@@ -102,11 +102,11 @@ router.patch('/:orgId',
         org.save((err, doc) => {
           if (err) {
             logger.error(
-                `database error on saving edited organization: ${err}`);
+                `database error on saving edited nonprofit: ${err}`);
             return res.sendStatus(500);
           }
 
-          logger.info(`edited organization ${doc._id}`);
+          logger.info(`edited nonprofit ${doc._id}`);
           return res.json(doc);
         });
       } else {
@@ -124,22 +124,22 @@ router.delete('/:orgId',
 
       if (user.admin) {
         logger.debug('user is admin');
-      } else if (user.organization && user.organization === orgId) {
-        logger.debug('user is from this organization');
+      } else if (user.nonprofit && user.nonprofit === orgId) {
+        logger.debug('user is from this nonprofit');
       } else {
-        logger.warn(`user does not have permission to delete organization`);
+        logger.warn(`user does not have permission to delete nonprofit`);
         return res.sendStatus(403);
       }
 
-      let org = await Organization.findById(orgId).exec();
+      let org = await nonprofit.findById(orgId).exec();
       if (org) {
         org.delete((err, doc) => {
           if (err) {
-            logger.error(`database error on deleting organization: ${err}`);
+            logger.error(`database error on deleting nonprofit: ${err}`);
             return res.sendStatus(500);
           }
 
-          logger.info(`deleted organization ${doc._id}`);
+          logger.info(`deleted nonprofit ${doc._id}`);
           return res.sendStatus(200);
         });
       } else {

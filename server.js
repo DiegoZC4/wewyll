@@ -18,7 +18,7 @@ const app = express();
 const PORT = process.env.PORT || 5000; // Step 1
 
 const event = require('./routes/event');
-const organization = require('./routes/organization');
+const nonprofit = require('./routes/nonprofit');
 const volunteer = require('./routes/volunteer');
 const commonField = require('./routes/commonField');
 const user = require('./routes/user');
@@ -64,7 +64,7 @@ app.use((req, res, next) => {
 const apiRouter = express.Router();
 
 apiRouter.use('/event', event);
-apiRouter.use('/organization', organization);
+apiRouter.use('/nonprofit', nonprofit);
 apiRouter.use('/volunteer', volunteer);
 apiRouter.use('/commonfield', commonField);
 apiRouter.use('/user', user);
