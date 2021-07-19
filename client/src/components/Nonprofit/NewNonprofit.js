@@ -3,6 +3,7 @@ import { Col, Row, Container } from 'react-bootstrap';
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from 'axios';
 import Nonprofit from './Nonprofit';
+import NonprofitList from './NonprofitList';
 
 const NewNonprofit = () => {
     const nonprofitStyle = {
@@ -57,6 +58,7 @@ const NewNonprofit = () => {
       };
 
     return (
+      <div>
         <Container>
             <Row className='justify-content-center'>
                 <Col>
@@ -105,6 +107,8 @@ const NewNonprofit = () => {
                 </Col>
             </Row>
         </Container>
+        <NonprofitList />
+      </div>
     )
 }
 

@@ -6,7 +6,6 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/system": "^4.11.3",
     "bootstrap": "^5.0.1",
-    "react": "^16.11.0",
     "react-bootstrap": "^1.6.0",
     "react-dom": "^16.14.0",
     "react-scripts": "3.2.0"

@@ -123,9 +123,28 @@ table {
   border-spacing: 0;
 }
 
+input:focus, textarea:focus, select:focus{
+  outline: none;
+  background-color: rgb(235, 235, 235);
+}
+
+.field-title {
+  font-size: 24px;
+}
+
+input {
+  border: none;
+  padding-left: 10px;
+}
+
 .blue {
   background-color: #6790c4 !important;
 }
+
+.white-text {
+  color: white;
+}
+
 .blue-text {
   color: #6790c4 !important;
 }
