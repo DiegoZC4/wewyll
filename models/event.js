@@ -9,10 +9,10 @@ const eventSchema = new Schema({
   // and MongoDB ObjectIDs expose information about creation time
   _id: String,
   title: String,
-  organization: String,
+  nonprofit: String,
   description: String,
   location: String,
-  time: String,
+  when: String,
   approved: Boolean,
   image: String,
   eventMetadata: [
