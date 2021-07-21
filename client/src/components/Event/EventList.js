@@ -2,6 +2,7 @@ import React, {useState } from 'react'
 import axios from 'axios';
 import {Button} from 'react-bootstrap';
 import { useAuth0 } from "@auth0/auth0-react";
+import Event from './Event';
 
 const EventList = () => {
   const [events, setEvents] = useState([]);
@@ -53,13 +54,9 @@ const EventList = () => {
     console.log(posts);
 
     return isAuthenticated && posts.map((post, index) => (
-      <form onSubmit={deleteEvent} key={index} id={post._id}>
-        <div className="blog-post__display">
-          <h3>{post.title}</h3>
-          <p>{post.body}</p>
+        <Event key={index} post={post}>
           <Button type='submit' variant='danger'>Delete</Button>
-        </div>
-      </form>
+        </Event>
     ));
   };
 

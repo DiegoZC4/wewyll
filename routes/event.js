@@ -115,23 +115,23 @@ router.post('/',
       }
 
       // validate
-      if (!body.title) {
-        logger.warn(`request body missing parameter: title`);
-        res.status(400).send('Missing parameter: title');
-        return;
-      }
+      // if (!body.title) {
+      //   logger.warn(`request body missing parameter: title`);
+      //   res.status(400).send('Missing parameter: title');
+      //   return;
+      // }
 
-      if (!body.nonprofit) {
-        logger.warn(`request body missing parameter: nonprofit`);
-        res.status(400).send('Missing parameter: nonprofit');
-        return;
-      }
+      // if (!body.nonprofit) {
+      //   logger.warn(`request body missing parameter: nonprofit`);
+      //   res.status(400).send('Missing parameter: nonprofit');
+      //   return;
+      // }
 
-      if (!org) {
-        logger.warn(`nonprofit ${body.nonprofit} does not exist`);
-        res.status(400).send("nonprofit does not exist");
-        return;
-      }
+      // if (!org) {
+      //   logger.warn(`nonprofit ${body.nonprofit} does not exist`);
+      //   res.status(400).send("nonprofit does not exist");
+      //   return;
+      // }
 
       const newEvent = new Event(req.body);
       newEvent._id = uuidv4();
