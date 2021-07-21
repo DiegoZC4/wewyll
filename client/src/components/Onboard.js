@@ -17,6 +17,7 @@ const Onboard = ({onboardType, setOnboardType, onboardOptions}) => {
         return (<Button style={onboardBtnStyle} className='blue' key={text} onClick={()=>setOnboardType(text)}>{`sign-in as a ${text}`}</Button>)
     }
     const chooseForm = (type) => {
+        console.log(type);
         switch (type){
             case 'volunteer': return <NewVolunteer/>
             case 'nonprofit': return <NewNonprofit/>

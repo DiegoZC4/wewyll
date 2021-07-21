@@ -3,13 +3,13 @@ import { useAuth0 } from "@auth0/auth0-react";
 import axios from 'axios';
 import Nonprofit from './Nonprofit';
 import {Button} from 'react-bootstrap';
-import React, {useState } from 'react'
+import React, {useState, useEffect} from 'react'
 
 const NonprofitList = () => { //{nonprofits}
     const [nonprofits, setNonprofits] = useState([]);
     const { isAuthenticated, getAccessTokenSilently } = useAuth0();
 
-    const getNonprofit = async () => {
+    const getNonprofits = async () => {
         try {
           const accessToken = await getAccessTokenSilently({
             audience: 'wewyll-api',
@@ -24,6 +24,9 @@ const NonprofitList = () => { //{nonprofits}
           console.log(e.message);
         }
       };
+
+      useEffect(getNonprofits
+      , [nonprofits])
 
       const displayNonprofits = (nonprofits) => {
 
@@ -61,7 +64,7 @@ const NonprofitList = () => { //{nonprofits}
       return (
         <div className="blog-">
             <h2>Nonprofits</h2>
-            <Button variant='success' onClick={getNonprofit}>Refresh</Button>
+            <Button variant='success' onClick={getNonprofits}>Refresh</Button>
             {displayNonprofits(nonprofits)}
         </div>
     );

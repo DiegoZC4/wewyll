@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react'
 import { Col, Row, Container } from 'react-bootstrap';
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from 'axios';
-import Nonprofit from './Nonprofit';
 import NonprofitList from './NonprofitList';
 
 const NewNonprofit = () => {
@@ -15,7 +14,7 @@ const NewNonprofit = () => {
     }
     const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
 
-    const [form, setForm] = useState({name:'', description:''});
+    const [form, setForm] = useState({name:'', description:'', members: 0, visible: false});
     const [nonprofits, setNonprofits] = useState([]);
 
     useEffect(() => {
@@ -103,7 +102,7 @@ const NewNonprofit = () => {
                 </Col>
                 <Col>
                     <h4 className='blue-text center'>join existing nonprofit profile</h4>
-                    
+                    <NonprofitList button='join'/>
                 </Col>
             </Row>
         </Container>

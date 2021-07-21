@@ -138,4 +138,29 @@ router.delete('/:userId',
       }
     });
 
+  router.patch('/:userId',
+    passport.authenticate(['jwt'], {session: false}),
+    async (req, res) => {
+      let userId = req.params.userId;
+      const user = req.user;
+      const body = req.body;
+      logger.debug(`user: ${user}`);
+      logger.debug(`body: ${body}`);
+
+      if (user._id === userId || user.admin) {
+        for (let key in body) user[key] = body[key];
+        user.save((err, doc) => {
+          if (err) {
+            logger.error(`database error when editing user: ${err}`);
+            res.sendStatus(500);
+          } else {
+            logger.info(`updated user ${userId}`);
+            res.json(doc);
+          }
+        });
+      } else {
+        res.sendStatus(403);
+      }
+  });
+
 module.exports = router;

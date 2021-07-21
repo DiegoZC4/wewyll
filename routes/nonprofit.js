@@ -29,13 +29,22 @@ router.post('/',
       logger.debug(`user: ${user}`);
       logger.debug(`body: ${body}`);
 
-      if (user.admin) {
+      if (user) {
         const newOrg = new nonprofit(body);
         newOrg._id = uuidv4();
         const response = await newOrg.save();
         if (response) {
           logger.info(`created new nonprofit ${response._id}`);
           res.status(201).json(response);
+          user.nonprofit = newOrg._id;
+          user.save((err, doc) => {
+            if (err) {
+              logger.error(`database error updating nonprofit ID: ${err}`);
+            } else {
+              logger.info(
+                  `user ${doc._id} is now associated with nonprofit ${doc.nonprofit}`);
+            }
+          });
         } else {
           logger.error(`database error on creating new nonprofit`);
           res.sendStatus(500);
