@@ -82,7 +82,7 @@ router.post('/',
           res.sendStatus(500);
         } else {
           logger.info(`created volunteer ${doc._id}`);
-          res.status(201).json(doc);
+          // res.status(201).json(doc);
         }
       });
     });
