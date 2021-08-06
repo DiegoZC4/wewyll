@@ -4,7 +4,7 @@ import {Button} from 'react-bootstrap';
 import { useAuth0 } from "@auth0/auth0-react";
 import Event from './Event';
 
-const EventList = () => {
+const EventList = ({ profile }) => {
   const [events, setEvents] = useState([]);
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
   // const accessToken = getAccessTokenSilently({
@@ -24,6 +24,8 @@ const EventList = () => {
   //       console.log(err);
   //     });
   //   }
+
+
   const getEvent = async () => {
     try {
       const accessToken = await getAccessTokenSilently({
@@ -54,17 +56,17 @@ const EventList = () => {
     console.log(posts);
 
     return isAuthenticated && posts.map((post, index) => (
-        <Event key={index} post={post}>
-          <Button type='submit' variant='danger'>Delete</Button>
-        </Event>
+      <div>
+        <Event key={index} post={post} profile={profile} onDelete={deleteEvent}/>
+      </div>
     ));
   };
-
   
   const deleteEvent = async (event) => {
+    console.log('Deleting event');
     try {
-      let id = event.target.id
-      console.log(id);
+      let id = event.target.id;
+      console.log("Right before");
       event.preventDefault();
       const accessToken = await getAccessTokenSilently({
         audience: 'wewyll-api',

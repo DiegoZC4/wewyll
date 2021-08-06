@@ -29,6 +29,7 @@ const App = () => {
   const [profile, setProfile] = useState(profileTypes[0]);
   const [availableProfiles, setAvailableProfiles] = useState([]);
 
+
   const getProfileRoutes = (profile) => {
     if (!availableProfiles.includes(profile)) return <Onboard onboardType={profile} setOnboardType={setProfile} onboardOptions={profileTypes.filter((o)=>o!=='admin')}/>
     switch (profile) {
@@ -63,7 +64,7 @@ const App = () => {
             )
           case 'admin':
             return (
-              <AdminDashboard/>
+              <AdminDashboard profile={profile} />
             )
           default:
             console.log('Error determining profile type')

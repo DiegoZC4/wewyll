@@ -2,11 +2,11 @@ import React from 'react'
 import NewEvent from './Event/NewEvent';
 import EventList from './Event/EventList';
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ profile }) => {
     return (
         <div>
             <NewEvent />
-            <EventList />
+            <EventList profile={profile}/>
         </div>
     )
 }
