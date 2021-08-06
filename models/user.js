@@ -5,8 +5,10 @@ const Schema = mongoose.Schema;
 const userDataSchema = new Schema({
   _id: String,
   volunteer: String,
-  nonProfit: String,
+  nonprofit: String,
+  nonprofitApproved: Boolean,
   business: String,
+  businessApproved: Boolean,
   admin: Boolean,
 });
 

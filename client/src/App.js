@@ -6,6 +6,8 @@ import Home from './components/Home';
 import Loading from './components/Loading';
 import Error from './components/Error';
 
+import NonprofitPendingApproval from './components/Nonprofit/NonprofitPendingApproval';
+
 import Profile from './components/Volunteer/Profile';
 import About from './components/About';
 import Footer from './components/Footer';
@@ -47,13 +49,13 @@ const App = () => {
           </Switch>
         )
         case 'nonprofit':
-          return (
+          return U.nonprofitApproved ? (
             <Switch>
               <Route path="/home">
                 <Home />
               </Route>
             </Switch>
-          )
+          ) : <NonprofitPendingApproval U={U} setU={setU}/>
           case 'business':
             return (
               <Switch>
@@ -80,10 +82,12 @@ const App = () => {
           axios.get(`/api/user/${user.sub}`, {headers: {Authorization: `Bearer ${accessToken}`}})
           .then(({data}) => {
             console.log(data);
-            let newProfileTypes = [...profileTypes, 'admin']
-            if (data.admin) {setProfileTypes(newProfileTypes)}
+            let newProfileTypes = (data.admin) ? profileTypes : [...profileTypes, 'admin'];
+            let newAvailableProfiles = newProfileTypes.filter((type)=> data[type]);
             setU(data);
-            setAvailableProfiles(newProfileTypes.filter((type)=> data[type]));
+            setProfileTypes(newProfileTypes);
+            setAvailableProfiles(newAvailableProfiles);
+            if (newAvailableProfiles) setProfile(newAvailableProfiles[0]);
           })
         } catch (e) {
           console.log(e);

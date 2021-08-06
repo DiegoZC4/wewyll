@@ -90,7 +90,15 @@ passport.use('jwt', new passportJwt.Strategy(opts, (jwtPayload, done) => {
         if (user) {
           return done(null, user);
         } else {
-          let newUser = new UserData({_id: jwtPayload.sub});
+          let newUser = new UserData({
+            _id: jwtPayload.sub,
+            volunteer: '',
+            nonprofit: '',
+            nonprofitApproved: false,
+            business: '',
+            businessApproved: false,
+            admin: false,
+          });
           newUser = await newUser.save();
           return done(null, newUser);
         }
