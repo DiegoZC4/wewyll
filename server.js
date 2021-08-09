@@ -110,6 +110,7 @@ passport.use('anon', new AnonymousStrategy());
 app.use(passport.initialize());
 
 app.use('/api', apiRouter);
+app.use(express.static('client/build'));
 // app.use('/', webapp);
 
 logger.info(`Server starting at port ${PORT}`);
