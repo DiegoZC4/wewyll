@@ -41,7 +41,7 @@ mongoose.connection.on('connected', () => {
   logger.info("Mongoose is connected");
 });
 
-app.set('view engine', 'pug')
+// app.set('view engine', 'pug')
 
 // Data parsing
 app.use(express.json());
@@ -110,7 +110,7 @@ passport.use('anon', new AnonymousStrategy());
 app.use(passport.initialize());
 
 app.use('/api', apiRouter);
-app.use('/', webapp);
+// app.use('/', webapp);
 
 logger.info(`Server starting at port ${PORT}`);
 app.listen(PORT);

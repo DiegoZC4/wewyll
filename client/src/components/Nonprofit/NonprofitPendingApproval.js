@@ -6,7 +6,6 @@ import axios from 'axios';
 const NonprofitPendingApproval = ({U, setU}) => {
     const { isAuthenticated, getAccessTokenSilently } = useAuth0();
     const [nonprofit, setNonprofit] = useState({});
-
     
     useEffect(()=>{
       const getNonprofit = async () => {
@@ -29,9 +28,9 @@ const NonprofitPendingApproval = ({U, setU}) => {
     const nonprofitReqStr = (action, npo) => 
       <div>
         {`Your request to ${action} `}
-        <h3 className='green-text'>
+        <div className='green-text'>
           {npo.name}
-        </h3>
+        </div>
         {` has been received and will be reviewed by a WeWyll admin.`}
       </div>
 
@@ -40,12 +39,19 @@ const NonprofitPendingApproval = ({U, setU}) => {
         const accessToken = await getAccessTokenSilently({
           audience: 'wewyll-api',
         });
+        if (nonprofit.members==1){
+          axios.delete(`/api/nonprofit/${nonprofit._id}`, {headers: {Authorization: `Bearer ${accessToken}`}})
+          .then((response) => {
+            console.log('Nonprofit deleted', response);
+          })
+        }
         const newU = {...U, nonprofit:''};
         axios.patch(`/api/user/${U._id}`, newU,{headers: {Authorization: `Bearer ${accessToken}`}})
         .then(() => {
           console.log('changed user');
           setU(newU);
         })
+        window.location.reload(false);
       } catch (e) {
         console.log(e.message);
       }
@@ -56,10 +62,10 @@ const NonprofitPendingApproval = ({U, setU}) => {
             <h4 className='blue-text justify-content-center'>
               <br/>
               <br/>
-              {nonprofit.members ? nonprofitReqStr('join',nonprofit) :
+              {nonprofit.members>1 ? nonprofitReqStr('join',nonprofit) :
                 nonprofitReqStr('create a nonprofit profile for',nonprofit)}
             </h4>
-            <Button onClick={removeRequest}>withdraw request</Button>
+            <Button onClick={removeRequest}>cancel request</Button>
         </Container>
     )
 }

@@ -27,10 +27,12 @@ const App = () => {
 
   const [U, setU] = useState({});
 
-  const [profileTypes, setProfileTypes] = useState(['volunteer', 'nonprofit', 'business']);
-  const [profile, setProfile] = useState(profileTypes[0]);
-  const [availableProfiles, setAvailableProfiles] = useState([]);
+  const vol = 'nonprofit';
 
+  const [profileTypes, setProfileTypes] = useState(['volunteer', 'nonprofit', 'business']);
+  const [profile, setProfile] = useState(vol);
+  const [availableProfiles, setAvailableProfiles] = useState([]);
+  if (!profile) setProfile(vol);
 
   const getProfileRoutes = (profile) => {
     if (!availableProfiles.includes(profile)) return <Onboard onboardType={profile} setOnboardType={setProfile} onboardOptions={profileTypes.filter((o)=>o!=='admin')}/>
@@ -85,7 +87,7 @@ const App = () => {
             let newProfileTypes = (data.admin) ? profileTypes : [...profileTypes, 'admin'];
             let newAvailableProfiles = newProfileTypes.filter((type)=> data[type]);
             setU(data);
-            setProfileTypes(newProfileTypes);
+            if (data['admin']) setProfileTypes(newProfileTypes);
             setAvailableProfiles(newAvailableProfiles);
             if (newAvailableProfiles) setProfile(newAvailableProfiles[0]);
           })
