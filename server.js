@@ -116,8 +116,9 @@ if (process.env.NODE_ENV === 'production') {
   app.get("*", (req, res) => {
       res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
     });
+} else {
+  app.use('/', webapp);
 }
-// app.use('/', webapp);
 
 logger.info(`Server starting at port ${PORT}`);
 app.listen(PORT);

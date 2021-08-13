@@ -33,6 +33,7 @@ const App = () => {
   const [profile, setProfile] = useState(vol);
   const [availableProfiles, setAvailableProfiles] = useState([]);
   if (!profile) setProfile(vol);
+  console.log(profile,profileTypes,availableProfiles)
 
   const getProfileRoutes = (profile) => {
     if (!availableProfiles.includes(profile)) return <Onboard onboardType={profile} setOnboardType={setProfile} onboardOptions={profileTypes.filter((o)=>o!=='admin')}/>
@@ -83,11 +84,11 @@ const App = () => {
           });
           axios.get(`/api/user/${user.sub}`, {headers: {Authorization: `Bearer ${accessToken}`}})
           .then(({data}) => {
-            console.log(data);
             let newProfileTypes = (data.admin) ? profileTypes : [...profileTypes, 'admin'];
             let newAvailableProfiles = newProfileTypes.filter((type)=> data[type]);
+            console.log(data,newProfileTypes,newAvailableProfiles);
             setU(data);
-            if (data['admin']) setProfileTypes(newProfileTypes);
+            setProfileTypes(newProfileTypes);
             setAvailableProfiles(newAvailableProfiles);
             if (newAvailableProfiles) setProfile(newAvailableProfiles[0]);
           })
@@ -96,7 +97,7 @@ const App = () => {
         }
       };
     console.log("auth0 data",user);
-    if (user) getUser();
+    if (!user) getUser();
   }, [user]);
   //JSX
   // if (isAuthenticated){
