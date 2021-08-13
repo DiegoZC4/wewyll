@@ -41,7 +41,7 @@ mongoose.connection.on('connected', () => {
   logger.info("Mongoose is connected");
 });
 
-app.set('view engine', 'pug')
+// app.set('view engine', 'pug')
 
 // Data parsing
 app.use(express.json());
@@ -110,7 +110,15 @@ passport.use('anon', new AnonymousStrategy());
 app.use(passport.initialize());
 
 app.use('/api', apiRouter);
-app.use('/', webapp);
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('client/build'));
+  app.get("*", (req, res) => {
+      res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+    });
+} else {
+  app.use('/', webapp);
+}
 
 logger.info(`Server starting at port ${PORT}`);
 app.listen(PORT);

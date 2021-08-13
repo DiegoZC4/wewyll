@@ -27,8 +27,10 @@ const App = () => {
 
   const [U, setU] = useState({});
 
+  const vol = 'nonprofit';
+
   const [profileTypes, setProfileTypes] = useState(['volunteer', 'nonprofit', 'business']);
-  const [profile, setProfile] = useState(profileTypes[0]);
+  const [profile, setProfile] = useState(vol);
   const [availableProfiles, setAvailableProfiles] = useState([]);
 
   const getProfileRoutes = (profile) => {
@@ -81,13 +83,13 @@ const App = () => {
           });
           axios.get(`/api/user/${user.sub}`, {headers: {Authorization: `Bearer ${accessToken}`}})
           .then(({data}) => {
-            console.log(data);
             let newProfileTypes = (data.admin) ? profileTypes : [...profileTypes, 'admin'];
             let newAvailableProfiles = newProfileTypes.filter((type)=> data[type]);
+            console.log(data,newProfileTypes,newAvailableProfiles);
             setU(data);
             setProfileTypes(newProfileTypes);
             setAvailableProfiles(newAvailableProfiles.map((item) => {
-              
+
               const getProfile = async (route, id) => {
 
                 console.log('getting profile');
@@ -117,25 +119,25 @@ const App = () => {
         }
       };
     console.log("auth0 data",user);
-    if (user) getUser();
+    if (!user) getUser();
   }, [user]);
   //JSX
   // if (isAuthenticated){
   return(
     <div className="app" style={{padding: 0, display: 'flex', minHeight: '100vh', flexDirection:'column'}}>
       <Header
-        U={U} 
-        profileTypes={profileTypes} 
-        setProfile={setProfile} 
-        availableProfiles={availableProfiles} 
+        U={U}
+        profileTypes={profileTypes}
+        setProfile={setProfile}
+        availableProfiles={availableProfiles}
         profile={profile}
       />
       <div style={{flex:1}}>
-        {isLoading ? 
-          <Loading/> : 
-            error ? 
-              <Error error={error}/>  : 
-                (isAuthenticated) ? 
+        {isLoading ?
+          <Loading/> :
+            error ?
+              <Error error={error}/>  :
+                (isAuthenticated) ?
                   <Router> {getProfileRoutes(profile)}</Router>: <About />}
       </div>
 
@@ -149,7 +151,7 @@ const App = () => {
   //   </div>
   //   );
 
-  
+
 }
 
 
