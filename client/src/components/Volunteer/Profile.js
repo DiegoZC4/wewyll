@@ -6,6 +6,9 @@ import axios from 'axios';
 const Profile = ({U}) => {
     const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
 
+
+    const rsvpEvents = U.rsvpEvent;
+
     const deleteVolunteer = async () => {
         try {
           const accessToken = await getAccessTokenSilently({
@@ -23,6 +26,8 @@ const Profile = ({U}) => {
         <div>
             <Button onClick={deleteVolunteer}>Delete Volunteer</Button>
             <Button>Delete User</Button>
+            
+
         </div>
     )
 }

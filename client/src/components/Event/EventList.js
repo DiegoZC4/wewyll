@@ -4,7 +4,7 @@ import {Button} from 'react-bootstrap';
 import { useAuth0 } from "@auth0/auth0-react";
 import Event from './Event';
 
-const EventList = ({ profile }) => {
+const EventList = ({ profile, U, availableProfiles }) => {
   const [events, setEvents] = useState([]);
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
   // const accessToken = getAccessTokenSilently({
@@ -57,28 +57,11 @@ const EventList = ({ profile }) => {
 
     return isAuthenticated && posts.map((post, index) => (
       <div>
-        <Event key={index} post={post} profile={profile} onDelete={deleteEvent}/>
+        <Event key={index} post={post} profile={profile} U={U} availableProfiles={availableProfiles}/>
       </div>
     ));
   };
   
-  const deleteEvent = async (event) => {
-    console.log('Deleting event');
-    try {
-      let id = event.target.id;
-      console.log("Right before");
-      event.preventDefault();
-      const accessToken = await getAccessTokenSilently({
-        audience: 'wewyll-api',
-      });
-      axios.delete(`/api/event/${id}`, {headers: {Authorization: `Bearer ${accessToken}`}})
-      .then((response) => {
-        console.log('Event deleted', response);
-      })
-    } catch (e) {
-      console.log(e.message);
-    }
-  }
   
     
     return (

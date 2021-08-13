@@ -1,7 +1,8 @@
 import React from 'react';
 import './Footer.css';
+import AdminDashboard from './AdminDashboard';
 
-const Footer = () => {
+const Footer = ({ U }) => {
     const footerStyle = {
       bottom: 0,
       padding: '15px 20px 0px 20px',
@@ -12,6 +13,7 @@ const Footer = () => {
 
     return (
         <div className='blue center' style={footerStyle}>
+          <AdminDashboard U={U}/>
           <h4>contact us</h4>
           <ul>
             <li>

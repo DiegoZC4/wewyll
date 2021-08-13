@@ -7,6 +7,7 @@ const volunteerSchema = new Schema({
   firstName: String,
   lastName: String,
   commonFieldPrefill: [{_id: String, response: String}],
+  rsvps: [{type: String}],
 })
 
 // Model

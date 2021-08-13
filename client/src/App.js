@@ -31,7 +31,6 @@ const App = () => {
   const [profile, setProfile] = useState(profileTypes[0]);
   const [availableProfiles, setAvailableProfiles] = useState([]);
 
-
   const getProfileRoutes = (profile) => {
     if (!availableProfiles.includes(profile)) return <Onboard onboardType={profile} setOnboardType={setProfile} onboardOptions={profileTypes.filter((o)=>o!=='admin')}/>
     switch (profile) {
@@ -66,12 +65,13 @@ const App = () => {
             )
           case 'admin':
             return (
-              <AdminDashboard profile={profile} />
+              <AdminDashboard profile={profile} U={U}/>
             )
           default:
             console.log('Error determining profile type')
     }
   }
+
 
   useEffect( ()=>{
     const getUser = async () => {
@@ -86,7 +86,30 @@ const App = () => {
             let newAvailableProfiles = newProfileTypes.filter((type)=> data[type]);
             setU(data);
             setProfileTypes(newProfileTypes);
-            setAvailableProfiles(newAvailableProfiles);
+            setAvailableProfiles(newAvailableProfiles.map((item) => {
+              
+              const getProfile = async (route, id) => {
+
+                console.log('getting profile');
+                try {
+                  console.log('Route', route, "ID", id);
+                  const accessToken = await getAccessTokenSilently({
+                    audience: 'wewyll-api',
+                  });
+                  axios.get(`/api/${route}/${id}`, {headers: {Authorization: `Bearer ${accessToken}`}})
+                  .then((response) => {
+                    console.log('Got profile', response);
+                  })
+                } catch (e) {
+                  console.log(e.message);
+                }
+              }
+              if (item === 'volunteer' || item === 'nonprofit') {
+                return getProfile(item, data[item]);
+              }
+              return item;
+            }));
+
             if (newAvailableProfiles) setProfile(newAvailableProfiles[0]);
           })
         } catch (e) {
@@ -116,7 +139,7 @@ const App = () => {
                   <Router> {getProfileRoutes(profile)}</Router>: <About />}
       </div>
 
-      <Footer/>
+      <Footer U={U} availableProfiles={availableProfiles}/>
 
     </div>
   );
