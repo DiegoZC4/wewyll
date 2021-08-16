@@ -11,7 +11,7 @@ import { Auth0Provider } from "@auth0/auth0-react";
 ReactDOM.render(
   <Auth0Provider
     domain="wewyll.us.auth0.com"
-    clientId="irqgj9DhdkIxBAoTjeYK7sa82xhBpEF3"
+    clientId="YoKWVPCNmQMeKPnYXi9ZAe235J2fEtz1"
     redirectUri={window.location.origin}
     audience='wewyll-api'
   >

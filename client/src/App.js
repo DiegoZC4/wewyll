@@ -32,6 +32,7 @@ const App = () => {
   const [profileTypes, setProfileTypes] = useState(['volunteer', 'nonprofit', 'business']);
   const [profile, setProfile] = useState(vol);
   const [availableProfiles, setAvailableProfiles] = useState([]);
+  // console.log(availableProfiles,profileTypes)
 
   const getProfileRoutes = (profile) => {
     if (!availableProfiles.includes(profile)) return <Onboard onboardType={profile} setOnboardType={setProfile} onboardOptions={profileTypes.filter((o)=>o!=='admin')}/>
@@ -83,9 +84,9 @@ const App = () => {
           });
           axios.get(`/api/user/${user.sub}`, {headers: {Authorization: `Bearer ${accessToken}`}})
           .then(({data}) => {
-            let newProfileTypes = (data.admin) ? profileTypes : [...profileTypes, 'admin'];
+            let newProfileTypes = (data.admin) ? [...profileTypes, 'admin']: profileTypes;
             let newAvailableProfiles = newProfileTypes.filter((type)=> data[type]);
-            console.log(data,newProfileTypes,newAvailableProfiles);
+            // console.log(data,newProfileTypes,newAvailableProfiles);
             setU(data);
             setProfileTypes(newProfileTypes);
             setAvailableProfiles(newAvailableProfiles.map((item) => {
@@ -119,9 +120,10 @@ const App = () => {
         }
       };
     console.log("auth0 data",user);
-    if (!user) getUser();
+    getUser();
   }, [user]);
   //JSX
+
   // if (isAuthenticated){
   return(
     <div className="app" style={{padding: 0, display: 'flex', minHeight: '100vh', flexDirection:'column'}}>
