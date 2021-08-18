@@ -51,7 +51,7 @@ const NonprofitPendingApproval = ({U, setU}) => {
           console.log('changed user');
           setU(newU);
         })
-        window.location.reload(false);
+        window.location.reload();
       } catch (e) {
         console.log(e.message);
       }

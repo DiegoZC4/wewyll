@@ -6,7 +6,8 @@ const volunteerSchema = new Schema({
   _id: String,
   firstName: String,
   lastName: String,
-  commonFieldPrefill: [{_id: String, response: String}],
+  zipcode: Number,
+  // commonFieldPrefill: [{_id: String, response: String}],
   rsvps: [{type: String}],
 })
 

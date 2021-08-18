@@ -208,43 +208,43 @@ router.patch('/:eventId',
         logger.warn(`event ${eventId} does not exist`);
         // it just doesn't exist
         res.sendStatus(404);
-      } else if (user.nonprofit !== event.nonprofit && !user.admin) {
-        logger.warn(`user does not have edit permissions for this event`);
-        if (event.approved) {
-          // we can see the event but can't edit
-          res.sendStatus(403);
-        } else {
-          // event exists but we can't see it
-          res.sendStatus(404);
-        }
+      // } else if (user.nonprofit !== event.nonprofit && !user.admin) {
+      //   logger.warn(`user does not have edit permissions for this event`);
+      //   if (event.approved) {
+      //     // we can see the event but can't edit
+      //     res.sendStatus(403);
+      //   } else {
+      //     // event exists but we can't see it
+      //     res.sendStatus(404);
+      //   }
       } else {
         // we can edit
-        if (body.nonprofit) {
-          if (user.admin) {
-            if (await nonprofit.findById(body.nonprofit).exec()) {
-              event.nonprofit = body.nonprofit;
-            } else {
-              logger.warn(`new nonprofit ${body.nonprofit} not found`);
-              res.status(400).send("nonprofit does not exist"); // not allowed to edit ID
-              return;
-            }
-          } else {
-            logger.warn(`user is not an admin but is trying to change org ID`);
-            res.status(403).send("cannot change nonprofit ID");
-          }
-        }
+        // if (body.nonprofit) {
+        //   if (user.admin) {
+        //     if (await nonprofit.findById(body.nonprofit).exec()) {
+        //       event.nonprofit = body.nonprofit;
+        //     } else {
+        //       logger.warn(`new nonprofit ${body.nonprofit} not found`);
+        //       res.status(400).send("nonprofit does not exist"); // not allowed to edit ID
+        //       return;
+        //     }
+        //   } else {
+        //     logger.warn(`user is not an admin but is trying to change org ID`);
+        //     res.status(403).send("cannot change nonprofit ID");
+        //   }
+        // }
 
-        if (body.approved !== event.approved) {
-          if (user.admin) {
-            // TODO: allow nonprofits to revoke approval?
-            // TODO: should approval be revoked on any edit?
-            event.approved = body.approved;
-          } else {
-            logger.warn(
-                `user is not an admin but is trying to change approval status`);
-            res.status(403).send("cannot edit approval status");
-          }
-        }
+        // if (body.approved !== event.approved) {
+        //   if (user.admin) {
+        //     // TODO: allow nonprofits to revoke approval?
+        //     // TODO: should approval be revoked on any edit?
+        //     event.approved = body.approved;
+        //   } else {
+        //     logger.warn(
+        //         `user is not an admin but is trying to change approval status`);
+        //     res.status(403).send("cannot edit approval status");
+        //   }
+        // }
 
         // TODO better validation for commonfields/customfields/metadata
 

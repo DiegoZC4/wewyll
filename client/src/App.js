@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Home from './components/Home';
 import Loading from './components/Loading';
 import Error from './components/Error';
+import EventList from './components/Event/EventList';
 
 import NonprofitPendingApproval from './components/Nonprofit/NonprofitPendingApproval';
 
@@ -12,7 +13,7 @@ import Profile from './components/Volunteer/Profile';
 import About from './components/About';
 import Footer from './components/Footer';
 import Onboard from './components/Onboard';
-import AdminDashboard from './components/AdminDashboard';
+import AdminDashboard from './components/Admin/AdminDashboard';
 import './App.css';
 import { useAuth0 } from "@auth0/auth0-react";
 import {
@@ -27,12 +28,13 @@ const App = () => {
 
   const [U, setU] = useState({});
 
-  const vol = 'nonprofit';
+  const vol = 'volunteer';
 
   const [profileTypes, setProfileTypes] = useState(['volunteer', 'nonprofit', 'business']);
   const [profile, setProfile] = useState(vol);
   const [availableProfiles, setAvailableProfiles] = useState([]);
-  // console.log(availableProfiles,profileTypes)
+  
+  // console.log(profile,availableProfiles,profileTypes)
 
   const getProfileRoutes = (profile) => {
     if (!availableProfiles.includes(profile)) return <Onboard onboardType={profile} setOnboardType={setProfile} onboardOptions={profileTypes.filter((o)=>o!=='admin')}/>
@@ -43,8 +45,12 @@ const App = () => {
             <Route path="/home">
               <Home />
             </Route>
+            <Route path="/volunteer">
+              <EventList profile={profile} U={U} myEventsOnly={false}/>
+            </Route>
             <Route path="/profile">
               <Profile U={U}/>
+
             </Route>
             <Route path="/">
             </Route>
@@ -86,34 +92,34 @@ const App = () => {
           .then(({data}) => {
             let newProfileTypes = (data.admin) ? [...profileTypes, 'admin']: profileTypes;
             let newAvailableProfiles = newProfileTypes.filter((type)=> data[type]);
-            // console.log(data,newProfileTypes,newAvailableProfiles);
+            console.log(data,newProfileTypes,newAvailableProfiles);
+            if (newAvailableProfiles) setProfile(newAvailableProfiles[0]);
             setU(data);
             setProfileTypes(newProfileTypes);
-            setAvailableProfiles(newAvailableProfiles.map((item) => {
+            setAvailableProfiles(newAvailableProfiles)
+            // .map((item) => {
 
-              const getProfile = async (route, id) => {
+            //   const getProfile = async (route, id) => {
 
-                console.log('getting profile');
-                try {
-                  console.log('Route', route, "ID", id);
-                  const accessToken = await getAccessTokenSilently({
-                    audience: 'wewyll-api',
-                  });
-                  axios.get(`/api/${route}/${id}`, {headers: {Authorization: `Bearer ${accessToken}`}})
-                  .then((response) => {
-                    console.log('Got profile', response);
-                  })
-                } catch (e) {
-                  console.log(e.message);
-                }
-              }
-              if (item === 'volunteer' || item === 'nonprofit') {
-                return getProfile(item, data[item]);
-              }
-              return item;
-            }));
-
-            if (newAvailableProfiles) setProfile(newAvailableProfiles[0]);
+            //     console.log('getting profile');
+            //     try {
+            //       console.log('Route', route, "ID", id);
+            //       const accessToken = await getAccessTokenSilently({
+            //         audience: 'wewyll-api',
+            //       });
+            //       axios.get(`/api/${route}/${id}`, {headers: {Authorization: `Bearer ${accessToken}`}})
+            //       .then((response) => {
+            //         console.log('Got profile', response);
+            //       })
+            //     } catch (e) {
+            //       console.log(e.message);
+            //     }
+            //   }
+            //   if (item === 'volunteer' || item === 'nonprofit') {
+            //     return getProfile(item, data[item]);
+            //   }
+            //   return item;
+            // }));
           })
         } catch (e) {
           console.log(e);

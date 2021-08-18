@@ -1,6 +1,6 @@
 import React from 'react';
 import './Footer.css';
-import AdminDashboard from './AdminDashboard';
+import AdminDashboard from './Admin/AdminDashboard';
 
 const Footer = ({ U }) => {
     const footerStyle = {
@@ -13,7 +13,7 @@ const Footer = ({ U }) => {
 
     return (
         <div className='blue center' style={footerStyle}>
-          <AdminDashboard U={U}/>
+          {/* <AdminDashboard U={U}/> */}
           <h4>contact us</h4>
           <ul>
             <li>

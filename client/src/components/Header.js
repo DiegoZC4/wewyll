@@ -53,6 +53,7 @@ const Header = ({U, profileTypes, setProfile, availableProfiles, profile}) => {
                 <Nav.Link href="volunteer">volunteer</Nav.Link>
                 <Nav.Link href="rewards">rewards</Nav.Link>
                 <Nav.Link href="profile">my profile</Nav.Link>
+                <Nav.Link href="events">my events</Nav.Link>
                     </div>
                 }
                 <NavDropdown title="Profile" id="basic-nav-dropdown">

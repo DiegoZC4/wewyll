@@ -11,33 +11,33 @@ const eventSchema = new Schema({
   title: String,
   nonprofit: String,
   description: String,
-  location: String,
-  when: String,
+  // location: String,
+  // when: String,
   approved: Boolean,
-  image: String,
-  eventMetadata: [
-    {
-      _id: String,
-      response: Schema.Types.Mixed
-    }
-  ],
-  commonFields: [String],
-  customFields: [
-    {
-      _id: String,
-      label: String,
-      type: String,
-      required: Boolean,
-      suggestedInput: String
-    }
-  ],
-  signUps: [
-    {
-      _id: String,
-      timestamp: Date,
-      user: String,
-      fieldData: [{_id: String, response: String}],
-    }
+  // image: String,
+  // eventMetadata: [
+  //   {
+  //     _id: String,
+  //     response: Schema.Types.Mixed
+  //   }
+  // ],
+  // commonFields: [String],
+  // customFields: [
+  //   {
+  //     _id: String,
+  //     label: String,
+  //     type: String,
+  //     required: Boolean,
+  //     suggestedInput: String
+  //   }
+  // ],
+  volunteers: [{type: String}
+  //   {
+  //     _id: String,
+  //     timestamp: Date,
+  //     user: String,
+  //     fieldData: [{_id: String, response: String}],
+  //   }
   ],
 });
 

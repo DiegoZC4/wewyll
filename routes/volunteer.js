@@ -47,10 +47,10 @@ router.post('/',
       logger.debug(`body: ${body}`);
 
       // TODO verify common fields are actual valid fields?
-      if (!body.name) {
-        logger.warn('request body missing required parameter: name');
-        res.status(400).send('missing required parameter: name');
-      }
+      // if (!body.name) {
+      //   logger.warn('request body missing required parameter: name');
+      //   res.status(400).send('missing required parameter: name');
+      // }
 
       const newVol = new Volunteer(body);
       newVol._id = uuidv4();
@@ -123,12 +123,13 @@ router.patch('/:volunteerId',
 
       if (user.volunteer === volunteerId || user.admin) {
         const volunteer = await Volunteer.findById(volunteerId);
-        if (body.name) {
-          volunteer.name = body.name;
-        }
-        if (body.commonFieldPrefill) {
-          volunteer.commonFieldPrefill = body.commonFieldPrefill;
-        }
+        for(let k in body) volunteer[k]=body[k];
+        // if (body.name) {
+        //   volunteer.name = body.name;
+        // }
+        // if (body.commonFieldPrefill) {
+        //   volunteer.commonFieldPrefill = body.commonFieldPrefill;
+        // }
 
         volunteer.save((err, doc) => {
           if (err) {

@@ -1,6 +1,6 @@
 import React from 'react'
-import NewEvent from './Event/NewEvent';
-import EventList from './Event/EventList';
+import NewEvent from '../Event/NewEvent';
+import EventList from '../Event/EventList';
 
 const AdminDashboard = ({ profile, U, availableProfiles}) => {
     return (

@@ -1,30 +1,12 @@
-import React, {useState } from 'react'
+import React, {useState, useEffect} from 'react'
 import axios from 'axios';
 import {Button} from 'react-bootstrap';
 import { useAuth0 } from "@auth0/auth0-react";
 import Event from './Event';
 
-const EventList = ({ profile, U, availableProfiles }) => {
+const EventList = ({ profile, U, myEventsOnly }) => {
   const [events, setEvents] = useState([]);
-  const { isAuthenticated, getAccessTokenSilently } = useAuth0();
-  // const accessToken = getAccessTokenSilently({
-  //   audience: `wewyll-api`,
-  // });
-  
-  // const getEvent = () => {
-
-  //   axios.get('/api/event', {headers: {Authorization: `Bearer ${accessToken}`}})
-  //     .then((response) => {
-  //       const data = response.data;
-  //       setEvents(data);
-  //       console.log('Data has been received!!', user, isAuthenticated);
-  //     })
-  //     .catch((err) => {
-  //       alert('Error retrieving data!!!');
-  //       console.log(err);
-  //     });
-  //   }
-
+  const { getAccessTokenSilently } = useAuth0();
 
   const getEvent = async () => {
     try {
@@ -32,34 +14,35 @@ const EventList = ({ profile, U, availableProfiles }) => {
         audience: 'wewyll-api',
       });
       axios.get('/api/event', {headers: {Authorization: `Bearer ${accessToken}`}})
-      .then((response) => {
-        const data = response.data;
+      .then(({data}) => {
         setEvents(data);
-        console.log('Data has been received!!', isAuthenticated);
+        console.log('Data has been received!!', data);
       })
     } catch (e) {
       console.log(e.message);
     }
   };
     
-  // useEffect(() => {
-  //     getEvent();
-  //   }, []);
+  useEffect(() => {
+      getEvent();
+    }, []);
+
+  const displayEvents = () => {
     
-    // useEffect(() => {
-    //   getEvent();
-    // });
-
-  const displayEvents = (posts) => {
-
-    if (!posts.length) return null;
+    let posts = myEventsOnly ? (profile==='volunteer') ? 
+      events.filter((e)=>e.volunteers.includes(U.volunteer)) : 
+      (profile === 'nonprofit') ?
+      events.filter((e)=>e.nonprofit === U.nonprofit) : events : events;
+    if (!posts.length) return;
     console.log(posts);
-
-    return isAuthenticated && posts.map((post, index) => (
-      <div>
-        <Event key={index} post={post} profile={profile} U={U} availableProfiles={availableProfiles}/>
-      </div>
-    ));
+    
+    return posts.map((post, index) => {
+        let button = 'none';
+        if (profile === 'admin' || (profile === 'nonprofit' && post.nonprofit === U.nonprofit)) button = 'delete';
+        if (profile === 'volunteer') button = post.volunteers.includes(U.volunteer) ? 'unrsvp' : 'rsvp';
+        
+        return <Event key={index} post={post} button={button} U={U}/>
+    });
   };
   
   
@@ -68,7 +51,7 @@ const EventList = ({ profile, U, availableProfiles }) => {
         <div className="blog-">
             <h2>Events</h2>
             <Button variant='success' onClick={getEvent}>Refresh</Button>
-            {displayEvents(events)}
+            {displayEvents()}
         </div>
     );
   

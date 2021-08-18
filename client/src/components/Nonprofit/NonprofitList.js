@@ -31,7 +31,7 @@ const NonprofitList = () => { //{nonprofits}
       const displayNonprofits = () => {
         // console.log(nonprofits)
         // if (!nonprofits.length) getNonprofits();
-        console.log(nonprofits);
+        // console.log(nonprofits);
     
         return nonprofits.length ? nonprofits.map((nonprofit, index) => (
           <form className='round-rectangle green' onSubmit={deleteNonprofit} key={index} id={nonprofit._id}>
