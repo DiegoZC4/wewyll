@@ -5,7 +5,7 @@ import NewNonprofit from './Nonprofit/NewNonprofit';
 import NewBusiness from './Business/NewBusiness';
 // import Volunteer from '../../../models/volunteer';
 
-const Onboard = ({onboardType, setOnboardType, onboardOptions}) => {
+const Onboard = ({onboardType, setOnboardType, onboardOptions, U}) => {
     const onboardBtnStyle = {
         height: 40,
         width: 220,
@@ -20,7 +20,7 @@ const Onboard = ({onboardType, setOnboardType, onboardOptions}) => {
         // console.log(type);
         switch (type){
             case 'volunteer': return <NewVolunteer/>
-            case 'nonprofit': return <NewNonprofit/>
+            case 'nonprofit': return <NewNonprofit U={U}/>
             case 'business':  return <NewBusiness/>
             default: console.log('Error choosing onboarding form')
         }

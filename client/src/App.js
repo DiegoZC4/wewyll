@@ -37,7 +37,7 @@ const App = () => {
   // console.log(profile,availableProfiles,profileTypes)
 
   const getProfileRoutes = (profile) => {
-    if (!availableProfiles.includes(profile)) return <Onboard onboardType={profile} setOnboardType={setProfile} onboardOptions={profileTypes.filter((o)=>o!=='admin')}/>
+    if (!availableProfiles.includes(profile)) return <Onboard onboardType={profile} setOnboardType={setProfile} onboardOptions={profileTypes.filter((o)=>o!=='admin')} U={U}/>
     switch (profile) {
       case 'volunteer':
         return (
@@ -129,7 +129,6 @@ const App = () => {
     getUser();
   }, [user]);
   //JSX
-
   // if (isAuthenticated){
   return(
     <div className="app" style={{padding: 0, display: 'flex', minHeight: '100vh', flexDirection:'column'}}>

@@ -5,7 +5,7 @@ import axios from 'axios';
 import NonprofitList from './NonprofitList';
 import CreateNonprofit from './CreateNonprofit'
 
-const NewNonprofit = () => {
+const NewNonprofit = ({ U }) => {
     return (
         <Container>
           <Col>
@@ -16,7 +16,7 @@ const NewNonprofit = () => {
           <br/>
           <Col>
             <h4 className='blue-text center'>join existing nonprofit profile</h4>
-            <NonprofitList button='join'/>
+            <NonprofitList U={U}/>
           </Col>
         </Container>
     )
